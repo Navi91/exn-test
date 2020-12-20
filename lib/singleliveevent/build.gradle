@@ -13,6 +13,7 @@ android {
         versionCode 1
         versionName "1.0"
 
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"
     }
 
@@ -28,7 +29,5 @@ android {
 apply from: "$rootDir/dependencies.gradle"
 
 dependencies {
-    implementation project(":lib:singleliveevent")
-
     implementation "androidx.lifecycle:lifecycle-extensions:$lifecycleExtensionsVersion"
 }

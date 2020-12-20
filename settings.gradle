@@ -1,4 +1,5 @@
 rootProject.name = "exn-test"
 
 include ':app',
+        ':lib:singleliveevent',
         ':basic:navigation'

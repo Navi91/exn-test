@@ -9,6 +9,7 @@ ext {
     nvWebsocketClientVersion = "2.10"
     junitVersion = "4.13.1"
     androidJunitVersion = "1.1.2"
+    lifecycleExtensionsVersion = "2.2.0"
 }
 
 dependencies {
