@@ -2,8 +2,9 @@ package ru.android.exn.basic.navigation
 
 import androidx.lifecycle.LiveData
 import ru.android.exn.lib.singleliveevent.SingleLiveEvent
+import javax.inject.Inject
 
-class NavigationEventProviderImpl : NavigationEventProvider {
+class NavigationEventProviderImpl @Inject constructor() : NavigationEventProvider {
 
     private val eventBuffer = SingleLiveEvent<NavEvent>()
 
