@@ -1,2 +1,4 @@
-include ':app'
 rootProject.name = "exn-test"
+
+include ':app',
+        ':basic:navigation'
