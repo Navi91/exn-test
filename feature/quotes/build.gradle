@@ -26,5 +26,8 @@ android {
 apply from: "$rootDir/dependencies.gradle"
 
 dependencies {
+    implementation project(":basic:viewmodel")
+    implementation project(":basic:dagger")
+
     implementation "androidx.lifecycle:lifecycle-extensions:$lifecycleExtensionsVersion"
 }

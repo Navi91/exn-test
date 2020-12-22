@@ -3,6 +3,7 @@ package ru.android.exn.test.di
 import android.content.Context
 import dagger.Module
 import dagger.Provides
+import ru.android.exn.basic.dagger.ApplicationScope
 import ru.android.exn.test.ExnApplication
 import ru.android.exn.test.database.DatabaseModule
 

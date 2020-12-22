@@ -1,4 +1,7 @@
 package ru.android.exn.feature.quotes.presentation.viewmodel
 
-class QuotesViewModel {
+import androidx.lifecycle.ViewModel
+import javax.inject.Inject
+
+class QuotesViewModel @Inject constructor() : ViewModel() {
 }

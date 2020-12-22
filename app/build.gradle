@@ -27,12 +27,18 @@ android {
     kotlinOptions {
         jvmTarget = '1.8'
     }
+
+    packagingOptions {
+        exclude("META-INF/*.kotlin_module")
+    }
 }
 
 apply from: "$rootDir/dependencies.gradle"
 
 dependencies {
+    implementation project(":basic:dagger")
     implementation project(":shared:quotes")
+    implementation project(":feature:quotes")
 
     implementation "androidx.appcompat:appcompat:$appCompatVersion"
     implementation "com.google.android.material:material:$materialVersion"
