@@ -11,6 +11,7 @@ ext {
     androidJunitVersion = "1.1.2"
     lifecycleExtensionsVersion = "2.2.0"
     daggerVersion = '2.23.2'
+    daggerCompillerVersion = '2.25.2'
 }
 
 dependencies {
@@ -19,6 +20,8 @@ dependencies {
     implementation "io.reactivex.rxjava2:rxkotlin:$rxKotlinVersion"
     implementation "io.reactivex.rxjava2:rxandroid:$rxAndroidVersion"
     implementation "com.google.dagger:dagger:$daggerVersion"
+
+    kapt "com.google.dagger:dagger-compiler:$daggerCompillerVersion"
 
     testImplementation "junit:junit:$junitVersion"
     androidTestImplementation "androidx.test.ext:junit:$androidJunitVersion"
