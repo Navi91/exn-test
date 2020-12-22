@@ -1,3 +1,5 @@
+include ':basic:viewmodel'
+include ':feature:quotes'
 rootProject.name = "exn-test"
 
 include ':app',
