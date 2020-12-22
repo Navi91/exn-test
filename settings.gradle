@@ -1,8 +1,9 @@
-include ':basic:viewmodel'
-include ':feature:quotes'
 rootProject.name = "exn-test"
 
 include ':app',
         ':lib:singleliveevent',
         ':basic:navigation',
-        ':shared:quotes'
+        ':basic:viewmodel',
+        ':basic:dagger',
+        ':shared:quotes',
+        ':feature:quotes'
