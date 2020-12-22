@@ -32,8 +32,14 @@ android {
 apply from: "$rootDir/dependencies.gradle"
 
 dependencies {
+    implementation project(":shared:quotes")
+
     implementation "androidx.appcompat:appcompat:$appCompatVersion"
     implementation "com.google.android.material:material:$materialVersion"
     implementation "androidx.constraintlayout:constraintlayout:$constaitLayoutVersion"
     implementation "com.neovisionaries:nv-websocket-client:$nvWebsocketClientVersion"
+
+    implementation "androidx.room:room-runtime:$roomVersion"
+    implementation "androidx.room:room-rxjava2:$roomVersion"
+    kapt "androidx.room:room-compiler:$roomVersion"
 }
