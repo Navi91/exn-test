@@ -2,6 +2,7 @@ plugins {
     id 'com.android.application'
     id 'kotlin-android'
     id 'kotlin-kapt'
+    id 'androidx.navigation.safeargs.kotlin'
 }
 
 android {
@@ -46,6 +47,7 @@ dependencies {
     implementation project(":basic:navigation")
     implementation project(":shared:quotes")
     implementation project(":feature:quotes")
+    implementation project(":feature:settings")
 
     implementation "androidx.appcompat:appcompat:$appCompatVersion"
     implementation "com.google.android.material:material:$materialVersion"

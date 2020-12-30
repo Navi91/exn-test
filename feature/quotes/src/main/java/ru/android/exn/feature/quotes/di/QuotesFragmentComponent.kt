@@ -10,7 +10,7 @@ import ru.android.exn.feature.quotes.presentation.fragment.QuotesFragment
     modules = [QuotesFragmentModule::class]
 )
 @FeatureScope
-interface QuotesFragmentComponent {
+internal interface QuotesFragmentComponent {
     fun inject(quotesFragment: QuotesFragment)
 
     @Component.Factory

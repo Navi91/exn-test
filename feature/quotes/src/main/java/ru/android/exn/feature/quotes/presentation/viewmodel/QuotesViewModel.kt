@@ -5,7 +5,7 @@ import androidx.lifecycle.ViewModel
 import ru.android.exn.feature.quotes.presentation.navigation.QuotesRouter
 import javax.inject.Inject
 
-class QuotesViewModel @Inject constructor(
+internal class QuotesViewModel @Inject constructor(
     private val router: QuotesRouter
 ) : ViewModel() {
 

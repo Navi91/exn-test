@@ -2,12 +2,11 @@ package ru.android.exn.feature.quotes.presentation.fragment
 
 import android.content.Context
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import ru.android.exn.feature.quotes.R
 import ru.android.exn.feature.quotes.databinding.FragmentQuotesBinding
 import ru.android.exn.feature.quotes.di.DaggerQuotesFragmentComponent
 import ru.android.exn.feature.quotes.di.QuotesFragmentComponent
@@ -15,7 +14,7 @@ import ru.android.exn.feature.quotes.di.QuotesFragmentDependency
 import ru.android.exn.feature.quotes.presentation.viewmodel.QuotesViewModel
 import javax.inject.Inject
 
-class QuotesFragment : Fragment() {
+internal class QuotesFragment : Fragment() {
 
     private val component: QuotesFragmentComponent by lazy {
         DaggerQuotesFragmentComponent
@@ -46,6 +45,12 @@ class QuotesFragment : Fragment() {
         super.onAttach(context)
     }
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        setHasOptionsMenu(true)
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -67,6 +72,22 @@ class QuotesFragment : Fragment() {
                 }
             }
         )
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        super.onCreateOptionsMenu(menu, inflater)
+
+        inflater.inflate(R.menu.quotes_fragment_menu, menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        if (item.itemId == R.id.action_settings) {
+            viewModel.openSettings()
+
+            return true
+        }
+
+        return super.onOptionsItemSelected(item)
     }
 
     override fun onDestroyView() {

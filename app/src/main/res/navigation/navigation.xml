@@ -1,11 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/navigation"
     app:startDestination="@id/quotesFragment">
 
     <fragment
         android:id="@+id/quotesFragment"
         android:name="ru.android.exn.feature.quotes.presentation.fragment.QuotesFragment"
-        android:label="QuotesFragment" />
+        android:label="@string/quotes_title"
+        tools:layout="@layout/fragment_quotes">
+        <action
+            android:id="@+id/action_quotesFragment_to_settingsFragment"
+            app:destination="@id/settingsFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/settingsFragment"
+        android:name="ru.android.exn.feature.settings.presentation.fragment.SettingsFragment"
+        android:label="@string/settings_title"
+        tools:layout="@layout/fragment_settings" />
 </navigation>

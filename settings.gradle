@@ -6,4 +6,5 @@ include ':app',
         ':basic:viewmodel',
         ':basic:dagger',
         ':shared:quotes',
-        ':feature:quotes'
+        ':feature:quotes',
+        ':feature:settings'
