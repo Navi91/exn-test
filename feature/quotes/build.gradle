@@ -21,6 +21,10 @@ android {
     kotlinOptions {
         jvmTarget = '1.8'
     }
+
+    viewBinding {
+        enabled = true
+    }
 }
 
 apply from: "$rootDir/dependencies.gradle"
@@ -28,6 +32,7 @@ apply from: "$rootDir/dependencies.gradle"
 dependencies {
     implementation project(":basic:viewmodel")
     implementation project(":basic:dagger")
+    implementation project(":basic:navigation")
 
     implementation "androidx.lifecycle:lifecycle-extensions:$lifecycleExtensionsVersion"
 }

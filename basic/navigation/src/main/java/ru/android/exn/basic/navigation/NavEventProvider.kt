@@ -2,7 +2,7 @@ package ru.android.exn.basic.navigation
 
 import androidx.lifecycle.LiveData
 
-interface NavigationEventProvider {
+interface NavEventProvider {
 
     fun postEvent(event: NavEvent)
 

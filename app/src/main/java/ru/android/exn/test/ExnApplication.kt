@@ -1,11 +1,11 @@
 package ru.android.exn.test
 
 import android.app.Application
-import ru.android.exn.feature.quotes.di.QuotesFragmentDependency
 import ru.android.exn.test.di.ApplicationComponent
 import ru.android.exn.test.di.DaggerApplicationComponent
+import ru.android.exn.test.di.activity.MainActivityDependency
 
-class ExnApplication : Application(), QuotesFragmentDependency.DependencyProvider {
+class ExnApplication : Application(), MainActivityDependency.DependencyProvider {
 
     private val component: ApplicationComponent by lazy {
         DaggerApplicationComponent
@@ -13,6 +13,6 @@ class ExnApplication : Application(), QuotesFragmentDependency.DependencyProvide
             .create(this)
     }
 
-    override fun getQuotesFragmentDependency(): QuotesFragmentDependency =
+    override fun getMainActivityDependency(): MainActivityDependency =
         component
 }

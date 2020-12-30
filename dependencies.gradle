@@ -15,6 +15,8 @@ ext {
     roomVersion = '2.2.6'
     lifecycleExtensionsVersion = '2.2.0'
     injectVersion = '1'
+    databindingCompilerVersion = '3.1.4'
+    androidxNavigationVersion = "2.3.0"
 }
 
 dependencies {

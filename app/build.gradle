@@ -20,12 +20,18 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
+
     kotlinOptions {
         jvmTarget = '1.8'
+    }
+
+    viewBinding {
+        enabled = true
     }
 
     packagingOptions {
@@ -37,6 +43,7 @@ apply from: "$rootDir/dependencies.gradle"
 
 dependencies {
     implementation project(":basic:dagger")
+    implementation project(":basic:navigation")
     implementation project(":shared:quotes")
     implementation project(":feature:quotes")
 
@@ -44,8 +51,12 @@ dependencies {
     implementation "com.google.android.material:material:$materialVersion"
     implementation "androidx.constraintlayout:constraintlayout:$constaitLayoutVersion"
     implementation "com.neovisionaries:nv-websocket-client:$nvWebsocketClientVersion"
+    implementation "androidx.navigation:navigation-fragment-ktx:$androidxNavigationVersion"
+    implementation "androidx.navigation:navigation-ui-ktx:$androidxNavigationVersion"
 
     implementation "androidx.room:room-runtime:$roomVersion"
     implementation "androidx.room:room-rxjava2:$roomVersion"
     kapt "androidx.room:room-compiler:$roomVersion"
+
+    kapt "com.android.databinding:compiler:$databindingCompilerVersion"
 }

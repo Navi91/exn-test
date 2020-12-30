@@ -1,12 +1,12 @@
-package ru.android.exn.feature.quotes.di
+package ru.android.exn.test.di.activity
 
 import ru.android.exn.basic.navigation.NavEventProvider
 
-interface QuotesFragmentDependency {
+interface MainActivityDependency {
 
     interface DependencyProvider {
 
-        fun getQuotesFragmentDependency(): QuotesFragmentDependency
+        fun getMainActivityDependency(): MainActivityDependency
     }
 
     fun getNavigationEventProvider(): NavEventProvider

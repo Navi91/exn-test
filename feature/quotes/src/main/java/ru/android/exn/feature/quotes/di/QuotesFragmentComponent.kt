@@ -3,6 +3,7 @@ package ru.android.exn.feature.quotes.di
 import dagger.BindsInstance
 import dagger.Component
 import ru.android.exn.basic.dagger.FeatureScope
+import ru.android.exn.feature.quotes.presentation.fragment.QuotesFragment
 
 @Component(
     dependencies = [QuotesFragmentDependency::class],
@@ -10,6 +11,7 @@ import ru.android.exn.basic.dagger.FeatureScope
 )
 @FeatureScope
 interface QuotesFragmentComponent {
+    fun inject(quotesFragment: QuotesFragment)
 
     @Component.Factory
     interface Factory {
