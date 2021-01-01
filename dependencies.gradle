@@ -17,6 +17,7 @@ ext {
     injectVersion = '1'
     databindingCompilerVersion = '3.1.4'
     androidxNavigationVersion = "2.3.0"
+    gsonVersion = '2.8.6'
 }
 
 dependencies {

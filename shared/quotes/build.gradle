@@ -26,7 +26,13 @@ android {
 apply from: "$rootDir/dependencies.gradle"
 
 dependencies {
+    implementation project(":basic:dagger")
+
     implementation "androidx.room:room-runtime:$roomVersion"
     implementation "androidx.room:room-rxjava2:$roomVersion"
     kapt "androidx.room:room-compiler:$roomVersion"
+
+    implementation "com.google.code.gson:gson:$gsonVersion"
+
+    implementation "com.neovisionaries:nv-websocket-client:$nvWebsocketClientVersion"
 }
