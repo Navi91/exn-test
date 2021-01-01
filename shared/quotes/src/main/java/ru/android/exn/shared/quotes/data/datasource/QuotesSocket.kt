@@ -11,8 +11,7 @@ import ru.android.exn.basic.dagger.ApplicationScope
 import ru.android.exn.shared.quotes.data.NaiveSSLContext
 import javax.inject.Inject
 
-@ApplicationScope
-class QuotesSocket @Inject constructor(){
+class QuotesSocket{
 
     private val messageSubject = BehaviorSubject.create<String>()
     private val stateSubject = BehaviorSubject.createDefault(WebSocketState.CREATED)

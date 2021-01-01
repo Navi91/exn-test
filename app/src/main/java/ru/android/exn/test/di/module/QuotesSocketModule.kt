@@ -6,14 +6,15 @@ import ru.android.exn.basic.dagger.ApplicationScope
 import ru.android.exn.shared.quotes.data.datasource.QuotesSocket
 
 @Module
-interface QuotesSocketModule {
+class QuotesSocketModule {
 
     @Module
     companion object {
 
-//        @Provides
-//        @ApplicationScope
-//        fun provideQuotesSocket(): QuotesSocket =
-//            QuotesSocket()
+        @Provides
+        @ApplicationScope
+        @JvmStatic
+        fun provideQuotesSocket(): QuotesSocket =
+            QuotesSocket()
     }
 }

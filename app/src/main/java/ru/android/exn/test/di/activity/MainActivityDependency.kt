@@ -12,5 +12,5 @@ interface MainActivityDependency {
 
     fun getNavigationEventProvider(): NavEventProvider
 
-//    fun getQuotesSocket(): QuotesSocket
+    fun getQuotesSocket(): QuotesSocket
 }
