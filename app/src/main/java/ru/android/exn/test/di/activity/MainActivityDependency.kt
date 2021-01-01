@@ -2,6 +2,7 @@ package ru.android.exn.test.di.activity
 
 import ru.android.exn.basic.navigation.NavEventProvider
 import ru.android.exn.shared.quotes.data.datasource.QuotesSocket
+import ru.android.exn.shared.quotes.domain.repository.QuotesSocketRepository
 
 interface MainActivityDependency {
 
@@ -13,4 +14,6 @@ interface MainActivityDependency {
     fun getNavigationEventProvider(): NavEventProvider
 
     fun getQuotesSocket(): QuotesSocket
+
+    fun getQuotesSocketRepository(): QuotesSocketRepository
 }

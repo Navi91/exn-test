@@ -1,13 +1,61 @@
 package ru.android.exn.feature.quotes.presentation.viewmodel
 
 import android.util.Log
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.rxkotlin.plusAssign
+import io.reactivex.rxkotlin.subscribeBy
 import ru.android.exn.feature.quotes.presentation.navigation.QuotesRouter
+import ru.android.exn.shared.quotes.domain.entity.SocketStatus
+import ru.android.exn.shared.quotes.domain.interactor.QuotesSocketInteractor
 import javax.inject.Inject
 
 internal class QuotesViewModel @Inject constructor(
-    private val router: QuotesRouter
+        private val router: QuotesRouter,
+        private val interactor: QuotesSocketInteractor
 ) : ViewModel() {
+
+    val socketStatus = MutableLiveData<SocketStatus>()
+
+    private val compositeDisposable = CompositeDisposable()
+
+    init {
+        compositeDisposable += interactor.connect()
+                .subscribeBy(
+                        onComplete = {
+                            Log.d(LOG_TAG, "Connection completed")
+                        },
+                        onError = { error ->
+                            Log.e(LOG_TAG, "Connect error: $error")
+                        }
+                )
+
+        compositeDisposable += interactor.observeStatus()
+                .subscribe({ status ->
+                    Log.d(LOG_TAG, "New socket status: $status")
+
+                    socketStatus.postValue(status)
+                }, { error ->
+                    Log.e(LOG_TAG, "Observe socket status error: $error")
+                })
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+
+        compositeDisposable.dispose()
+    }
+
+    fun processStart() {
+        Log.d(LOG_TAG, "processStart")
+    }
+
+    fun processStop() {
+        Log.d(LOG_TAG, "processStop")
+
+        interactor.disconnect()
+    }
 
     fun openSettings() {
         Log.d(LOG_TAG, "openSettings")

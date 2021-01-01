@@ -3,8 +3,10 @@ package ru.android.exn.feature.quotes.presentation.fragment
 import android.content.Context
 import android.os.Bundle
 import android.view.*
+import android.widget.TextView
 import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import ru.android.exn.feature.quotes.R
 import ru.android.exn.feature.quotes.databinding.FragmentQuotesBinding
@@ -12,17 +14,18 @@ import ru.android.exn.feature.quotes.di.DaggerQuotesFragmentComponent
 import ru.android.exn.feature.quotes.di.QuotesFragmentComponent
 import ru.android.exn.feature.quotes.di.QuotesFragmentDependency
 import ru.android.exn.feature.quotes.presentation.viewmodel.QuotesViewModel
+import ru.android.exn.shared.quotes.domain.entity.SocketStatus
 import javax.inject.Inject
 
 internal class QuotesFragment : Fragment() {
 
     private val component: QuotesFragmentComponent by lazy {
         DaggerQuotesFragmentComponent
-            .factory()
-            .create(
-                (requireActivity() as QuotesFragmentDependency.DependencyProvider)
-                    .getQuotesFragmentDependency()
-            )
+                .factory()
+                .create(
+                        (requireActivity() as QuotesFragmentDependency.DependencyProvider)
+                                .getQuotesFragmentDependency()
+                )
     }
 
     @Inject
@@ -38,6 +41,8 @@ internal class QuotesFragment : Fragment() {
 
     private val root: View
         get() = binding.root
+    private val statusTextView: TextView
+        get() = binding.statusTextView
 
     override fun onAttach(context: Context) {
         component.inject(this)
@@ -52,9 +57,9 @@ internal class QuotesFragment : Fragment() {
     }
 
     override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
+            inflater: LayoutInflater,
+            container: ViewGroup?,
+            savedInstanceState: Bundle?
     ): View {
         _binding = FragmentQuotesBinding.inflate(inflater, container, false)
 
@@ -65,13 +70,23 @@ internal class QuotesFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         requireActivity().onBackPressedDispatcher.addCallback(
-            viewLifecycleOwner,
-            object : OnBackPressedCallback(true) {
-                override fun handleOnBackPressed() {
-                    viewModel.back()
+                viewLifecycleOwner,
+                object : OnBackPressedCallback(true) {
+                    override fun handleOnBackPressed() {
+                        viewModel.back()
+                    }
                 }
-            }
         )
+
+        viewModel.socketStatus.observe(viewLifecycleOwner, { socketStatus ->
+            when (socketStatus) {
+                SocketStatus.CREATED    -> statusTextView.text = "created"
+                SocketStatus.CONNECTING -> statusTextView.text = "Connecting"
+                SocketStatus.OPEN       -> statusTextView.text = "open"
+                SocketStatus.CLOSING    -> statusTextView.text = "closing"
+                SocketStatus.CLOSED     -> statusTextView.text = "closed"
+            }
+        })
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {

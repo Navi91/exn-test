@@ -11,7 +11,7 @@ import ru.android.exn.basic.dagger.ApplicationScope
 import ru.android.exn.shared.quotes.data.NaiveSSLContext
 import javax.inject.Inject
 
-class QuotesSocket{
+class QuotesSocket {
 
     private val messageSubject = BehaviorSubject.create<String>()
     private val stateSubject = BehaviorSubject.createDefault(WebSocketState.CREATED)
@@ -78,23 +78,13 @@ class QuotesSocket{
             }
     }
 
-    fun connect() {
-        Completable.fromAction {
+    fun connect(): Completable = Completable
+        .fromAction {
             socket.connect()
         }
-            .subscribeOn(Schedulers.io())
-            .subscribeBy(
-                onComplete = {
-                    Log.d(LOG_TAG, "Connect completed")
-                },
-                onError = { error ->
-                    Log.e(LOG_TAG, "Connect to socket error: $error")
-                }
-            )
-    }
 
     fun disconnect() {
-        socket.disconnect()
+        socket.disconnect(WebSocketCloseCode.AWAY)
     }
 
     fun observeMessages(): Observable<String> =

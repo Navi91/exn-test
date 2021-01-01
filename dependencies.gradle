@@ -23,6 +23,7 @@ ext {
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
     implementation "androidx.core:core-ktx:$coreKtxVersion"
+    implementation "io.reactivex.rxjava2:rxjava:$rxKotlinVersion"
     implementation "io.reactivex.rxjava2:rxkotlin:$rxKotlinVersion"
     implementation "io.reactivex.rxjava2:rxandroid:$rxAndroidVersion"
     implementation "javax.inject:javax.inject:$injectVersion"
