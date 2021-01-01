@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <style name="AppTextView">
+        <item name="android:gravity">start|center_vertical</item>
+        <item name="android:ellipsize">end</item>
+    </style>
+
+    <style name="AppTextView.16">
+        <item name="android:textSize">16sp</item>
+    </style>
+
+    <style name="AppTextView.16.OneLine">
+        <item name="android:maxLines">1</item>
+        <item name="android:singleLine">true</item>
+    </style>
+
+    <style name="AppTextView.16.Center">
+        <item name="android:gravity">center</item>
+    </style>
+
+    <style name="AppTextView.16.OneLine.Center">
+        <item name="android:gravity">center</item>
+    </style>
+
+</resources>

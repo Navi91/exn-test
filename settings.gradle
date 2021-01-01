@@ -2,6 +2,7 @@ rootProject.name = "exn-test"
 
 include ':app',
         ':lib:singleliveevent',
+        ':lib:design',
         ':basic:navigation',
         ':basic:viewmodel',
         ':basic:dagger',

@@ -4,12 +4,8 @@ import android.util.Log
 import com.neovisionaries.ws.client.*
 import io.reactivex.Completable
 import io.reactivex.Observable
-import io.reactivex.rxkotlin.subscribeBy
-import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.BehaviorSubject
-import ru.android.exn.basic.dagger.ApplicationScope
 import ru.android.exn.shared.quotes.data.NaiveSSLContext
-import javax.inject.Inject
 
 class QuotesSocket {
 

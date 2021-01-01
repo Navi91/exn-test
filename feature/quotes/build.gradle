@@ -30,10 +30,12 @@ android {
 apply from: "$rootDir/dependencies.gradle"
 
 dependencies {
+    implementation project(":lib:design")
     implementation project(":basic:viewmodel")
     implementation project(":basic:dagger")
     implementation project(":basic:navigation")
     implementation project(":shared:quotes")
 
     implementation "androidx.lifecycle:lifecycle-extensions:$lifecycleExtensionsVersion"
+    implementation "androidx.recyclerview:recyclerview:$recyclerviewVersion"
 }

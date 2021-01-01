@@ -7,6 +7,7 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.plusAssign
 import io.reactivex.rxkotlin.subscribeBy
 import ru.android.exn.feature.quotes.presentation.navigation.QuotesRouter
+import ru.android.exn.shared.quotes.domain.entity.Quote
 import ru.android.exn.shared.quotes.domain.entity.SocketStatus
 import ru.android.exn.shared.quotes.domain.interactor.QuotesSocketInteractor
 import ru.android.exn.shared.quotes.domain.usecase.ObserveQuotesUseCase
@@ -19,6 +20,7 @@ internal class QuotesViewModel @Inject constructor(
 ) : ViewModel() {
 
     val socketStatus = MutableLiveData<SocketStatus>()
+    val quotes = MutableLiveData<List<Quote>>()
 
     private val compositeDisposable = CompositeDisposable()
 
@@ -46,6 +48,8 @@ internal class QuotesViewModel @Inject constructor(
                 .subscribeBy(
                         onNext = { quotes ->
                             Log.v(LOG_TAG, "New quotes: $quotes")
+
+                            this.quotes.postValue(quotes)
                         },
                         onError = { error ->
                             Log.e(LOG_TAG, "Observe quotes error: $error")
