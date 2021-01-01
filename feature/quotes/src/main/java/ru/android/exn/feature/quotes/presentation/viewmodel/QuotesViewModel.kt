@@ -9,11 +9,13 @@ import io.reactivex.rxkotlin.subscribeBy
 import ru.android.exn.feature.quotes.presentation.navigation.QuotesRouter
 import ru.android.exn.shared.quotes.domain.entity.SocketStatus
 import ru.android.exn.shared.quotes.domain.interactor.QuotesSocketInteractor
+import ru.android.exn.shared.quotes.domain.usecase.ObserveQuotesUseCase
 import javax.inject.Inject
 
 internal class QuotesViewModel @Inject constructor(
         private val router: QuotesRouter,
-        private val interactor: QuotesSocketInteractor
+        private val interactor: QuotesSocketInteractor,
+        observeQuotesUseCase: ObserveQuotesUseCase
 ) : ViewModel() {
 
     val socketStatus = MutableLiveData<SocketStatus>()
@@ -39,6 +41,16 @@ internal class QuotesViewModel @Inject constructor(
                 }, { error ->
                     Log.e(LOG_TAG, "Observe socket status error: $error")
                 })
+
+        compositeDisposable += observeQuotesUseCase()
+                .subscribeBy(
+                        onNext = { quotes ->
+                            Log.v(LOG_TAG, "New quotes: $quotes")
+                        },
+                        onError = { error ->
+                            Log.e(LOG_TAG, "Observe quotes error: $error")
+                        }
+                )
     }
 
     override fun onCleared() {

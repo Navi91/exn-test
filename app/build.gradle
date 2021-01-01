@@ -61,4 +61,6 @@ dependencies {
     kapt "androidx.room:room-compiler:$roomVersion"
 
     kapt "com.android.databinding:compiler:$databindingCompilerVersion"
+
+    implementation "com.google.code.gson:gson:$gsonVersion"
 }
