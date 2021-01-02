@@ -8,7 +8,7 @@ import ru.android.exn.shared.quotes.domain.entity.Quote
 import javax.inject.Inject
 
 class SocketMessageMapper @Inject constructor(
-        private val gson: Gson
+    private val gson: Gson
 ) {
 
     fun toQuotes(message: String): List<Quote> {
@@ -28,7 +28,10 @@ class SocketMessageMapper @Inject constructor(
             return emptyList()
         }
 
-        return quoteDtoList.mapNotNull { quoteDto -> toQuote(quoteDto) }
+        return quoteDtoList
+            .reversed()
+            .distinctBy { quoteDto -> quoteDto.id }
+            .mapNotNull { quoteDto -> toQuote(quoteDto) }
     }
 
     private fun toQuote(dto: SocketQuoteDto): Quote? {
