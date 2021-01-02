@@ -1,7 +1,8 @@
 package ru.android.exn.shared.quotes.domain.entity
 
 data class Instrument(
-    val name: String,
+    val id: String,
+    val displayName: String,
     val isVisible: Boolean,
     val order: Int
 )

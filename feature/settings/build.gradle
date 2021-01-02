@@ -30,6 +30,7 @@ android {
 apply from: "$rootDir/dependencies.gradle"
 
 dependencies {
+    implementation project(":lib:design")
     implementation project(":basic:viewmodel")
     implementation project(":basic:dagger")
     implementation project(":basic:navigation")

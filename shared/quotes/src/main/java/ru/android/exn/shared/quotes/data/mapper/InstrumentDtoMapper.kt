@@ -4,11 +4,12 @@ import ru.android.exn.shared.quotes.data.dto.InstrumentDto
 import ru.android.exn.shared.quotes.domain.entity.Instrument
 import javax.inject.Inject
 
-class InstrumentMapper @Inject constructor() {
+class InstrumentDtoMapper @Inject constructor() {
 
     fun toInstrument(dto: InstrumentDto): Instrument =
         Instrument(
-            name = dto.id,
+            id = dto.id,
+            displayName = dto.displayName,
             isVisible = dto.isVisible,
             order = dto.order
         )

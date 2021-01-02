@@ -8,10 +8,12 @@ import android.view.ViewGroup
 import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.RecyclerView
 import ru.android.exn.feature.settings.databinding.FragmentSettingsBinding
 import ru.android.exn.feature.settings.di.DaggerSettingsFragmentComponent
 import ru.android.exn.feature.settings.di.SettingsFragmentComponent
 import ru.android.exn.feature.settings.di.SettingsFragmentDependency
+import ru.android.exn.feature.settings.presentation.adapter.InstrumentsAdapter
 import ru.android.exn.feature.settings.presentation.viewmodel.SettingsViewModel
 import javax.inject.Inject
 
@@ -29,8 +31,10 @@ internal class SettingsFragment : Fragment() {
     @Inject
     lateinit var factory: ViewModelProvider.Factory
 
-    private val viewModel: SettingsViewModel by lazy {
-        ViewModelProvider(this, factory)[SettingsViewModel::class.java]
+    private lateinit var viewModel: SettingsViewModel
+
+    private val adapter: InstrumentsAdapter by lazy {
+        InstrumentsAdapter()
     }
 
     private var _binding: FragmentSettingsBinding? = null
@@ -39,11 +43,19 @@ internal class SettingsFragment : Fragment() {
 
     private val root: View
         get() = binding.root
+    private val instrumentsRecyclerView: RecyclerView
+        get() = binding.root
 
     override fun onAttach(context: Context) {
         component.inject(this)
 
         super.onAttach(context)
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        viewModel = ViewModelProvider(this, factory)[SettingsViewModel::class.java]
     }
 
     override fun onCreateView(
@@ -59,6 +71,30 @@ internal class SettingsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        setupBackPressedCallback()
+        setupInstrumentRecyclerView()
+
+        observeInstrumentModels()
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+
+        _binding = null
+    }
+
+    private fun observeInstrumentModels() {
+        viewModel.instrumentModels.observe(viewLifecycleOwner, { instrumentModels ->
+            adapter.setItems(instrumentModels)
+            adapter.notifyDataSetChanged()
+        })
+    }
+
+    private fun setupInstrumentRecyclerView() {
+        instrumentsRecyclerView.adapter = adapter
+    }
+
+    private fun setupBackPressedCallback() {
         requireActivity().onBackPressedDispatcher.addCallback(
             viewLifecycleOwner,
             object : OnBackPressedCallback(true) {
@@ -67,11 +103,5 @@ internal class SettingsFragment : Fragment() {
                 }
             }
         )
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-
-        _binding = null
     }
 }
