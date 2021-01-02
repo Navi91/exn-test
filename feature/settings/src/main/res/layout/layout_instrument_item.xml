@@ -1,15 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
-<CheckedTextView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/instrument_checked_text_view"
     android:layout_width="match_parent"
     android:layout_height="56dp"
-    android:checkMark="?android:attr/listChoiceIndicatorMultiple"
+    android:animateLayoutChanges="true"
+    android:background="?android:selectableItemBackground"
     android:gravity="center_vertical"
-    android:paddingStart="@dimen/padding_16"
-    android:paddingEnd="@dimen/padding_16"
-    tools:checked="true"
+    android:orientation="horizontal"
     tools:text="USD / EUR">
 
-</CheckedTextView>
+    <TextView
+        android:id="@+id/name_text_view"
+        style="@style/AppTextView.16.OneLine"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:paddingStart="@dimen/padding_16"
+        android:paddingEnd="@dimen/padding_16"
+        tools:text="USD / EUR" />
+
+    <CheckBox
+        android:id="@+id/is_visible_checkbox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/margin_16"
+        android:layout_marginEnd="@dimen/margin_16"
+        android:clickable="false"
+        tools:checked="true" />
+
+</LinearLayout>

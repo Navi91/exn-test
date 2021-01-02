@@ -39,6 +39,6 @@ interface InstrumentDao {
     @Insert
     fun insertAll(dtoList: List<InstrumentDto>)
 
-    @Update
-    fun update(infoDto: InstrumentDto): Completable
+    @Query("UPDATE InstrumentDto SET isVisible = :isVisible WHERE id = :instrumentId")
+    fun update(instrumentId: String, isVisible: Boolean): Completable
 }

@@ -8,11 +8,13 @@ import android.view.ViewGroup
 import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import ru.android.exn.feature.settings.databinding.FragmentSettingsBinding
 import ru.android.exn.feature.settings.di.DaggerSettingsFragmentComponent
 import ru.android.exn.feature.settings.di.SettingsFragmentComponent
 import ru.android.exn.feature.settings.di.SettingsFragmentDependency
+import ru.android.exn.feature.settings.presentation.adapter.InstrumentDiffUtilsCallback
 import ru.android.exn.feature.settings.presentation.adapter.InstrumentsAdapter
 import ru.android.exn.feature.settings.presentation.viewmodel.SettingsViewModel
 import javax.inject.Inject
@@ -34,7 +36,9 @@ internal class SettingsFragment : Fragment() {
     private lateinit var viewModel: SettingsViewModel
 
     private val adapter: InstrumentsAdapter by lazy {
-        InstrumentsAdapter()
+        InstrumentsAdapter { instrumentModel ->
+            viewModel.processInstrumentModelClick(instrumentModel)
+        }
     }
 
     private var _binding: FragmentSettingsBinding? = null
@@ -72,7 +76,7 @@ internal class SettingsFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         setupBackPressedCallback()
-        setupInstrumentRecyclerView()
+        setupInstrumentsRecyclerView()
 
         observeInstrumentModels()
     }
@@ -85,12 +89,17 @@ internal class SettingsFragment : Fragment() {
 
     private fun observeInstrumentModels() {
         viewModel.instrumentModels.observe(viewLifecycleOwner, { instrumentModels ->
+
+            val diffResult = DiffUtil.calculateDiff(
+                InstrumentDiffUtilsCallback(adapter.items, instrumentModels)
+            )
+
             adapter.setItems(instrumentModels)
-            adapter.notifyDataSetChanged()
+            diffResult.dispatchUpdatesTo(adapter)
         })
     }
 
-    private fun setupInstrumentRecyclerView() {
+    private fun setupInstrumentsRecyclerView() {
         instrumentsRecyclerView.adapter = adapter
     }
 

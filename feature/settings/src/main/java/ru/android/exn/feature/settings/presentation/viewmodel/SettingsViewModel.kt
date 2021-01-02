@@ -4,17 +4,19 @@ import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.rxkotlin.subscribeBy
 import io.reactivex.rxkotlin.plusAssign
+import io.reactivex.rxkotlin.subscribeBy
 import ru.android.exn.feature.settings.presentation.mapper.InstrumentModelMapper
 import ru.android.exn.feature.settings.presentation.model.InstrumentModel
 import ru.android.exn.feature.settings.presentation.navigation.SettingsRouter
 import ru.android.exn.shared.quotes.domain.usecase.GetInstrumentsUseCase
+import ru.android.exn.shared.quotes.domain.usecase.SetInstrumentVisibilityUseCase
 import javax.inject.Inject
 
 internal class SettingsViewModel @Inject constructor(
     private val router: SettingsRouter,
     getInstrumentsUseCase: GetInstrumentsUseCase,
+    private val setInstrumentVisibilityUseCase: SetInstrumentVisibilityUseCase,
     private val instrumentModelMapper: InstrumentModelMapper
 ) : ViewModel() {
 
@@ -47,10 +49,38 @@ internal class SettingsViewModel @Inject constructor(
         compositeDisposable.dispose()
     }
 
+    fun processInstrumentModelClick(model: InstrumentModel) {
+        Log.d(LOG_TAG, "processInstrumentModelClick model: $model")
+
+        compositeDisposable += setInstrumentVisibilityUseCase(model.id, !model.isChecked)
+            .subscribeBy(
+                onComplete = {
+                    Log.d(LOG_TAG, "Set visibility completed for model: $model")
+
+                    updateModel(model, !model.isChecked)
+                },
+                onError = { error ->
+                    Log.e(LOG_TAG, "Set instrument visibility error: $error for model: $model")
+                }
+            )
+    }
+
     fun back() {
         Log.d(LOG_TAG, "back")
 
         router.back()
+    }
+
+    private fun updateModel(changedModel: InstrumentModel, isChecked: Boolean) {
+        val newModels = instrumentModels.value.orEmpty().map { model ->
+            if (model.id == changedModel.id) {
+                model.copy(isChecked = isChecked)
+            } else {
+                model
+            }
+        }
+
+        instrumentModels.postValue(newModels)
     }
 
     private companion object {
