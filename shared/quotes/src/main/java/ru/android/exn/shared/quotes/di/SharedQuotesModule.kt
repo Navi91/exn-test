@@ -5,8 +5,10 @@ import dagger.Module
 import dagger.Provides
 import ru.android.exn.basic.dagger.ApplicationScope
 import ru.android.exn.shared.quotes.data.datasource.QuotesSocket
+import ru.android.exn.shared.quotes.data.repository.InstrumentRepositoryImpl
 import ru.android.exn.shared.quotes.data.repository.QuotesRepositoryImpl
 import ru.android.exn.shared.quotes.data.repository.QuotesSocketRepositoryImpl
+import ru.android.exn.shared.quotes.domain.repository.InstrumentRepository
 import ru.android.exn.shared.quotes.domain.repository.QuotesRepository
 import ru.android.exn.shared.quotes.domain.repository.QuotesSocketRepository
 
@@ -28,4 +30,7 @@ interface SharedQuotesModule {
 
     @Binds
     fun bindQuotesRepository(repo: QuotesRepositoryImpl): QuotesRepository
+
+    @Binds
+    fun bindInstrumentRepository(repo: InstrumentRepositoryImpl): InstrumentRepository
 }

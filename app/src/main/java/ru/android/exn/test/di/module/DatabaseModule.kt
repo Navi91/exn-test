@@ -15,6 +15,7 @@ interface DatabaseModule {
     companion object {
 
         @Provides
+        @JvmStatic
         @ApplicationScope
         fun provideDataBase(context: Context): ExnDatabase =
             Room.databaseBuilder(context, ExnDatabase::class.java, "exn_db")
@@ -22,6 +23,7 @@ interface DatabaseModule {
                 .build()
 
         @Provides
+        @JvmStatic
         fun provideInstrumentPresentationDao(database: ExnDatabase): InstrumentDao =
             database.instrumentPresentationDao()
     }

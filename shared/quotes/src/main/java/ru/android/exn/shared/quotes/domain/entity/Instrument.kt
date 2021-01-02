@@ -1,6 +1,6 @@
 package ru.android.exn.shared.quotes.domain.entity
 
-data class InstrumentPresentationInfo(
+data class Instrument(
     val name: String,
     val isVisible: Boolean,
     val order: Int
