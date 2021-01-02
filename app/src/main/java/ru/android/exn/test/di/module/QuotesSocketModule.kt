@@ -8,13 +8,5 @@ import ru.android.exn.shared.quotes.data.datasource.QuotesSocket
 @Module
 class QuotesSocketModule {
 
-    @Module
-    companion object {
 
-        @Provides
-        @ApplicationScope
-        @JvmStatic
-        fun provideQuotesSocket(): QuotesSocket =
-            QuotesSocket()
-    }
 }

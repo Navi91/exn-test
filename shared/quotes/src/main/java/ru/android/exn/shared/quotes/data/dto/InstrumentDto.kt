@@ -4,10 +4,11 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 
 @Entity(
-    tableName = "InstrumentPresentationInfoDto"
+    tableName = "InstrumentDto"
 )
-data class InstrumentPresentationInfoDto(
+data class InstrumentDto(
     @PrimaryKey val id: String,
+    val displayName: String,
     val isVisible: Boolean,
     val order: Int
 )
