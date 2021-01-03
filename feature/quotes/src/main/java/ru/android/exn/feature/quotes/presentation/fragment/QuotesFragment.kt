@@ -8,6 +8,7 @@ import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import ru.android.exn.feature.quotes.R
 import ru.android.exn.feature.quotes.databinding.FragmentQuotesBinding
@@ -16,6 +17,7 @@ import ru.android.exn.feature.quotes.di.QuotesFragmentComponent
 import ru.android.exn.feature.quotes.di.QuotesFragmentDependency
 import ru.android.exn.feature.quotes.presentation.adapter.QuotesAdapter
 import ru.android.exn.feature.quotes.presentation.adapter.QuotesDiffUtilCallback
+import ru.android.exn.feature.quotes.presentation.adapter.QuotesItemTouchHelperCallback
 import ru.android.exn.feature.quotes.presentation.viewmodel.QuotesViewModel
 import ru.android.exn.shared.quotes.domain.entity.SocketStatus
 import javax.inject.Inject
@@ -133,6 +135,11 @@ internal class QuotesFragment : Fragment() {
     }
 
     private fun setupQuotesRecyclerView() {
+        val touchHelperCallback = QuotesItemTouchHelperCallback(
+            { fromPosition, toPosition -> viewModel.processMove(fromPosition, toPosition) },
+            { swipedPosition -> viewModel.processSwipe(swipedPosition) }
+        )
+        ItemTouchHelper(touchHelperCallback).attachToRecyclerView(quotesRecyclerView)
         quotesRecyclerView.adapter = adapter
     }
 

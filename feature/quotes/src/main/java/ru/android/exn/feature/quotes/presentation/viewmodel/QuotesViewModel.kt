@@ -91,6 +91,14 @@ internal class QuotesViewModel @Inject constructor(
         interactor.disconnect()
     }
 
+    fun processMove(fromPosition: Int, newPosition: Int) {
+
+    }
+
+    fun processSwipe(swipedPosition: Int) {
+
+    }
+
     fun openSettings() {
         Log.d(LOG_TAG, "openSettings")
 
