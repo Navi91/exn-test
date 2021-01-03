@@ -49,6 +49,7 @@ dependencies {
     implementation project(":shared:quotes")
     implementation project(":feature:quotes")
     implementation project(":feature:settings")
+    implementation project(":feature:splash")
 
     implementation "androidx.appcompat:appcompat:$appCompatVersion"
     implementation "com.google.android.material:material:$materialVersion"

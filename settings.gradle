@@ -8,4 +8,5 @@ include ':app',
         ':basic:dagger',
         ':shared:quotes',
         ':feature:quotes',
-        ':feature:settings'
+        ':feature:settings',
+        ':feature:splash'

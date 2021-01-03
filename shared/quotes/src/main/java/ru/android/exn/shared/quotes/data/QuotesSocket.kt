@@ -41,7 +41,9 @@ class QuotesSocket(
                             )
                         )
                     }
-                    .subscribe()
+                    .subscribeBy(
+                        onError = { Log.e(LOG_TAG, "Mock error: $it") }
+                    )
             }
         }
 

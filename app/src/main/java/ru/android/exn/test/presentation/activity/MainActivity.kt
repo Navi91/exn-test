@@ -3,7 +3,6 @@ package ru.android.exn.test.presentation.activity
 import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.navigation.findNavController
 import ru.android.exn.basic.navigation.ExitNavEvent
@@ -13,20 +12,20 @@ import ru.android.exn.feature.quotes.di.QuotesFragmentDependency
 import ru.android.exn.feature.quotes.presentation.fragment.QuotesFragmentDirections
 import ru.android.exn.feature.quotes.presentation.navigation.OpenSettingsScreenFromQuotesScreen
 import ru.android.exn.feature.settings.di.SettingsFragmentDependency
+import ru.android.exn.feature.splah.di.SplashFragmentDependency
+import ru.android.exn.feature.splah.presentation.fragment.SplashFragmentDirections
+import ru.android.exn.feature.splah.presentation.navigation.OpenQuotesScreen
 import ru.android.exn.test.R
 import ru.android.exn.test.databinding.ActivityMainBinding
 import ru.android.exn.test.di.activity.DaggerMainActivityComponent
 import ru.android.exn.test.di.activity.MainActivityComponent
 import ru.android.exn.test.di.activity.MainActivityDependency
-import ru.android.exn.test.presentation.navigation.OpenStartScreen
-import ru.android.exn.test.presentation.viewmodel.MainActivityViewModel
 import javax.inject.Inject
 
 class MainActivity : AppCompatActivity(),
     QuotesFragmentDependency.DependencyProvider,
-    SettingsFragmentDependency.DependencyProvider {
-
-    //{"ticks":[{"s":"BTCUSD","b":"27271.04","bf":1,"a":"27286.39","af":2,"spr":"153.5"},{"s":"BTCUSD","b":"27265.07","bf":2,"a":"27285.35","af":2,"spr":"202.8"}]}
+    SettingsFragmentDependency.DependencyProvider,
+    SplashFragmentDependency.DependencyProvider {
 
     private val component: MainActivityComponent by lazy {
         DaggerMainActivityComponent
@@ -36,8 +35,6 @@ class MainActivity : AppCompatActivity(),
 
     @Inject
     lateinit var navEventProvider: NavEventProvider
-    @Inject
-    lateinit var viewModelFactory: ViewModelProvider.Factory
 
     private lateinit var binding: ActivityMainBinding
 
@@ -55,13 +52,12 @@ class MainActivity : AppCompatActivity(),
         setContentView(binding.root)
 
         setupNavController()
-        setupViewModel()
 
         observeNavEvents()
     }
 
     private fun setupNavController() {
-
+        navController.setGraph(R.navigation.navigation)
         navController.addOnDestinationChangedListener { _, destination, _ ->
             Log.d(LOG_TAG, "Destination: $destination")
 
@@ -76,10 +72,6 @@ class MainActivity : AppCompatActivity(),
         }
     }
 
-    private fun setupViewModel() {
-        val viewModel = ViewModelProvider(this, viewModelFactory)[MainActivityViewModel::class.java]
-    }
-
     private fun observeNavEvents() {
         navEventProvider.getEvents().observe(this, { event ->
             when (event) {
@@ -89,8 +81,10 @@ class MainActivity : AppCompatActivity(),
                         finish()
                     }
                 }
-                OpenStartScreen -> {
-                    navController.setGraph(R.navigation.navigation)
+                OpenQuotesScreen -> {
+                    navController.navigate(
+                        SplashFragmentDirections.actionSplashFragmentToQuotesFragment()
+                    )
                 }
                 OpenSettingsScreenFromQuotesScreen -> {
                     navController.navigate(
@@ -108,6 +102,9 @@ class MainActivity : AppCompatActivity(),
         component
 
     override fun getSettingsFragmentDependency(): SettingsFragmentDependency =
+        component
+
+    override fun getSplashFragmentDependency(): SplashFragmentDependency =
         component
 
     companion object {

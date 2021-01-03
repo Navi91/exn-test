@@ -1,23 +1,23 @@
-package ru.android.exn.test.presentation.viewmodel
+package ru.android.exn.feature.splah.presentation.viewmodel
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import io.reactivex.rxkotlin.subscribeBy
+import ru.android.exn.feature.splah.presentation.navigation.SplashRouter
 import ru.android.exn.shared.quotes.domain.usecase.PrepopulateInstrumentsIfNeedUseCase
-import ru.android.exn.test.presentation.navigation.MainActivityRouter
 import javax.inject.Inject
 
-class MainActivityViewModel @Inject constructor(
-    prepopulateInstrumentsIfNeedUseCase: PrepopulateInstrumentsIfNeedUseCase,
-    router: MainActivityRouter
-) : ViewModel() {
+internal class SplashViewModel @Inject constructor(
+    router: SplashRouter,
+    prepopulateInstrumentsIfNeedUseCase: PrepopulateInstrumentsIfNeedUseCase
+) : ViewModel(){
 
     init {
         prepopulateInstrumentsIfNeedUseCase()
             .subscribeBy(
                 onComplete = {
                     Log.d(LOG_TAG, "Prepopulate instruments completed")
-                    router.openStartScreen()
+                    router.openQuotesScreen()
                 },
                 onError = { error ->
                     Log.e(LOG_TAG, "Prepopulate instruments error: $error")
@@ -26,6 +26,6 @@ class MainActivityViewModel @Inject constructor(
     }
 
     private companion object {
-        const val LOG_TAG = "MainActivityViewModel"
+        const val LOG_TAG = "SplashViewModel"
     }
 }

@@ -3,7 +3,11 @@ package ru.android.exn.feature.quotes.presentation.viewmodel
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import io.reactivex.Observable
+import io.reactivex.Scheduler
+import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.disposables.Disposable
 import io.reactivex.rxkotlin.plusAssign
 import io.reactivex.rxkotlin.subscribeBy
 import ru.android.exn.feature.quotes.presentation.navigation.QuotesRouter
@@ -12,6 +16,7 @@ import ru.android.exn.shared.quotes.domain.entity.SocketStatus
 import ru.android.exn.shared.quotes.domain.interactor.QuotesSocketInteractor
 import ru.android.exn.shared.quotes.domain.usecase.ObserveInstrumentsUseCase
 import ru.android.exn.shared.quotes.domain.usecase.ObserveQuotesUseCase
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 internal class QuotesViewModel @Inject constructor(
@@ -71,24 +76,46 @@ internal class QuotesViewModel @Inject constructor(
         compositeDisposable.dispose()
     }
 
+
+    private var isDisconnected = true
+    private var disconnectTimerDisposable: Disposable? = null
+
     fun processStart() {
         Log.d(LOG_TAG, "processStart")
 
-        compositeDisposable += interactor.connect()
-            .subscribeBy(
-                onComplete = {
-                    Log.d(LOG_TAG, "Connection completed")
-                },
-                onError = { error ->
-                    Log.e(LOG_TAG, "Connect error: $error")
-                }
-            )
+        if (isDisconnected) {
+            compositeDisposable += interactor.connect()
+                .subscribeBy(
+                    onComplete = {
+                        Log.d(LOG_TAG, "Connection completed")
+                    },
+                    onError = { error ->
+                        Log.e(LOG_TAG, "Connect error: $error")
+                    }
+                )
+        }
+
+        isDisconnected = false
+        disconnectTimerDisposable?.dispose()
     }
+
 
     fun processStop() {
         Log.d(LOG_TAG, "processStop")
 
-        interactor.disconnect()
+        disconnectTimerDisposable = Observable.timer(2, TimeUnit.SECONDS)
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribeBy(
+                onComplete = {
+                    Log.d(LOG_TAG, "Disconnect timer is finished")
+
+                    isDisconnected = true
+                    interactor.disconnect()
+                },
+                onError = { error ->
+                    Log.e(LOG_TAG, "Disconnect timer error: $error")
+                }
+            )
     }
 
     fun processMove(fromPosition: Int, newPosition: Int) {
