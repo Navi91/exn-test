@@ -49,7 +49,7 @@ class QuotesAdapter : RecyclerView.Adapter<QuotesItemViewHolder>() {
             get() = binding.spreadTextView
 
         fun bind(item: Quote) {
-            instrumentTextView.text = item.id
+            instrumentTextView.text = item.instrumentId
             bindAndAskTextView.text = "${item.bid} / ${item.ask}"
             spreadTextView.text = item.spread.toString()
         }

@@ -2,16 +2,16 @@ package ru.android.exn.shared.quotes.data.mapper
 
 import android.util.Log
 import com.google.gson.Gson
+import ru.android.exn.shared.quotes.data.dto.QuoteDto
 import ru.android.exn.shared.quotes.data.dto.SocketMessageDto
 import ru.android.exn.shared.quotes.data.dto.SocketQuoteDto
-import ru.android.exn.shared.quotes.domain.entity.Quote
 import javax.inject.Inject
 
 class SocketMessageMapper @Inject constructor(
     private val gson: Gson
 ) {
 
-    fun toQuotes(message: String): List<Quote> {
+    fun toQuoteDtoList(message: String): List<QuoteDto> {
         val socketMessageDto = gson.fromJson(message, SocketMessageDto::class.java)
 
         if (socketMessageDto == null) {
@@ -31,13 +31,13 @@ class SocketMessageMapper @Inject constructor(
         return quoteDtoList
             .reversed()
             .distinctBy { quoteDto -> quoteDto.id }
-            .mapNotNull { quoteDto -> toQuote(quoteDto) }
+            .mapNotNull { quoteDto -> toQuoteDto(quoteDto) }
     }
 
-    private fun toQuote(dto: SocketQuoteDto): Quote? {
-        val displayName = dto.id
+    private fun toQuoteDto(dto: SocketQuoteDto): QuoteDto? {
+        val instrumentId = dto.id
 
-        if (displayName == null) {
+        if (instrumentId == null) {
             Log.w(LOG_TAG, "Display name is not present in $dto")
 
             return null
@@ -67,7 +67,7 @@ class SocketMessageMapper @Inject constructor(
             return null
         }
 
-        return Quote(displayName, bid, ask, spread)
+        return QuoteDto(instrumentId, bid, ask, spread)
     }
 
     private companion object {
