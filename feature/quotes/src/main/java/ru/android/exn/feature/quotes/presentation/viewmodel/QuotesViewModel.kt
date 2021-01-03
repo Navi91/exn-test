@@ -10,41 +10,47 @@ import ru.android.exn.feature.quotes.presentation.navigation.QuotesRouter
 import ru.android.exn.shared.quotes.domain.entity.Quote
 import ru.android.exn.shared.quotes.domain.entity.SocketStatus
 import ru.android.exn.shared.quotes.domain.interactor.QuotesSocketInteractor
+import ru.android.exn.shared.quotes.domain.usecase.GetInstrumentsUseCase
 import ru.android.exn.shared.quotes.domain.usecase.ObserveQuotesUseCase
 import javax.inject.Inject
 
 internal class QuotesViewModel @Inject constructor(
-        private val router: QuotesRouter,
-        private val interactor: QuotesSocketInteractor,
-        observeQuotesUseCase: ObserveQuotesUseCase
+    private val router: QuotesRouter,
+    private val interactor: QuotesSocketInteractor,
+    private val observeQuotesUseCase: ObserveQuotesUseCase,
+    private val getInstrumentsUseCase: GetInstrumentsUseCase
 ) : ViewModel() {
 
     val socketStatus = MutableLiveData<SocketStatus>()
-    val quotes = MutableLiveData<List<Quote>>()
+    val model = MutableLiveData<List<Quote>>()
+
+    private val quotes = mutableListOf<Quote>()
+    private val instrumentsOrderList = mutableListOf<String>()
 
     private val compositeDisposable = CompositeDisposable()
 
     init {
-        compositeDisposable += interactor.observeStatus()
-                .subscribe({ status ->
-                    Log.d(LOG_TAG, "New socket status: $status")
+        observeSocketStatus()
 
-                    socketStatus.postValue(status)
-                }, { error ->
-                    Log.e(LOG_TAG, "Observe socket status error: $error")
-                })
+        getInstrumentsUseCase()
+            .map { instruments -> instruments.filter { it.isSubscribed } }
+            .map { instruments -> instruments.map { it.id } }
+            .doOnSuccess { instrumentIds ->
+                Log.d(LOG_TAG, "Get instruments success: $instrumentIds")
 
-        compositeDisposable += observeQuotesUseCase()
-                .subscribeBy(
-                        onNext = { quotes ->
-                            Log.v(LOG_TAG, "New quotes: $quotes")
+                instrumentsOrderList.addAll(instrumentIds)
+            }
+            .flatMapObservable { observeQuotesUseCase() }
+            .subscribeBy(
+                onNext = { quotes ->
+                    Log.v(LOG_TAG, "New quotes: $quotes")
 
-                            this.quotes.postValue(quotes)
-                        },
-                        onError = { error ->
-                            Log.e(LOG_TAG, "Observe quotes error: $error")
-                        }
-                )
+                    setQuotes(quotes)
+                },
+                onError = { error ->
+                    Log.e(LOG_TAG, "Observe quotes error: $error")
+                }
+            )
     }
 
     override fun onCleared() {
@@ -83,6 +89,42 @@ internal class QuotesViewModel @Inject constructor(
         Log.d(LOG_TAG, "back")
 
         router.back()
+    }
+
+    private fun observeSocketStatus() {
+        compositeDisposable += interactor.observeStatus()
+            .subscribe({ status ->
+                Log.d(LOG_TAG, "New socket status: $status")
+
+                socketStatus.postValue(status)
+            }, { error ->
+                Log.e(LOG_TAG, "Observe socket status error: $error")
+            })
+    }
+
+    private fun setQuotes(quotes: List<Quote>) {
+        this.quotes.apply {
+            clear()
+            addAll(quotes)
+        }
+
+        updateModel()
+    }
+
+    private fun updateModel() {
+        val modelQuotes = mutableListOf<Quote>()
+
+        instrumentsOrderList.forEach { instrumentId ->
+            val quote = quotes.firstOrNull { it.instrumentId == instrumentId }
+
+            if (quote != null) {
+                modelQuotes.add(quote)
+            }
+        }
+
+        Log.d(LOG_TAG, "Post model: $modelQuotes")
+
+        model.postValue(modelQuotes)
     }
 
     private companion object {

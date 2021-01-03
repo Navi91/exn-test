@@ -7,6 +7,7 @@ import android.widget.TextView
 import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import ru.android.exn.feature.quotes.R
 import ru.android.exn.feature.quotes.databinding.FragmentQuotesBinding
@@ -14,6 +15,7 @@ import ru.android.exn.feature.quotes.di.DaggerQuotesFragmentComponent
 import ru.android.exn.feature.quotes.di.QuotesFragmentComponent
 import ru.android.exn.feature.quotes.di.QuotesFragmentDependency
 import ru.android.exn.feature.quotes.presentation.adapter.QuotesAdapter
+import ru.android.exn.feature.quotes.presentation.adapter.QuotesDiffUtilCallback
 import ru.android.exn.feature.quotes.presentation.viewmodel.QuotesViewModel
 import ru.android.exn.shared.quotes.domain.entity.SocketStatus
 import javax.inject.Inject
@@ -87,9 +89,12 @@ internal class QuotesFragment : Fragment() {
             }
         })
 
-        viewModel.quotes.observe(viewLifecycleOwner, { quotes ->
+        viewModel.model.observe(viewLifecycleOwner, { quotes ->
+            val diffResult = DiffUtil.calculateDiff(QuotesDiffUtilCallback(adapter.items, quotes))
+
             adapter.setItems(quotes)
-            adapter.notifyDataSetChanged()
+
+            diffResult.dispatchUpdatesTo(adapter)
         })
     }
 

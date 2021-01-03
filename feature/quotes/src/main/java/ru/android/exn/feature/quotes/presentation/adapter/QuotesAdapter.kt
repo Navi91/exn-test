@@ -12,7 +12,7 @@ import ru.android.exn.shared.quotes.domain.entity.Quote
 
 class QuotesAdapter : RecyclerView.Adapter<QuotesItemViewHolder>() {
 
-    private val items = mutableListOf<Quote>()
+    val items = mutableListOf<Quote>()
 
     fun setItems(items: List<Quote>) {
         this.items.apply {

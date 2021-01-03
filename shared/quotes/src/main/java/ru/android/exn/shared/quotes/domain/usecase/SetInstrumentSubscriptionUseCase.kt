@@ -4,10 +4,10 @@ import io.reactivex.Completable
 import ru.android.exn.shared.quotes.domain.repository.InstrumentRepository
 import javax.inject.Inject
 
-class SetInstrumentVisibilityUseCase @Inject constructor(
+class SetInstrumentSubscriptionUseCase @Inject constructor(
     private val repository: InstrumentRepository
 ) {
 
-    operator fun invoke(instrumentId: String, isVisible: Boolean): Completable =
-        repository.setInstrumentVisibility(instrumentId, isVisible)
+    operator fun invoke(instrumentId: String, isSubscribed: Boolean): Completable =
+        repository.setInstrumentVisibility(instrumentId, isSubscribed)
 }

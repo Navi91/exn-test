@@ -10,13 +10,13 @@ import ru.android.exn.feature.settings.presentation.mapper.InstrumentModelMapper
 import ru.android.exn.feature.settings.presentation.model.InstrumentModel
 import ru.android.exn.feature.settings.presentation.navigation.SettingsRouter
 import ru.android.exn.shared.quotes.domain.usecase.GetInstrumentsUseCase
-import ru.android.exn.shared.quotes.domain.usecase.SetInstrumentVisibilityUseCase
+import ru.android.exn.shared.quotes.domain.usecase.SetInstrumentSubscriptionUseCase
 import javax.inject.Inject
 
 internal class SettingsViewModel @Inject constructor(
     private val router: SettingsRouter,
     getInstrumentsUseCase: GetInstrumentsUseCase,
-    private val setInstrumentVisibilityUseCase: SetInstrumentVisibilityUseCase,
+    private val setInstrumentVisibilityUseCase: SetInstrumentSubscriptionUseCase,
     private val instrumentModelMapper: InstrumentModelMapper
 ) : ViewModel() {
 
