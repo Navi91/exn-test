@@ -25,16 +25,6 @@ internal class QuotesViewModel @Inject constructor(
     private val compositeDisposable = CompositeDisposable()
 
     init {
-        compositeDisposable += interactor.connect()
-                .subscribeBy(
-                        onComplete = {
-                            Log.d(LOG_TAG, "Connection completed")
-                        },
-                        onError = { error ->
-                            Log.e(LOG_TAG, "Connect error: $error")
-                        }
-                )
-
         compositeDisposable += interactor.observeStatus()
                 .subscribe({ status ->
                     Log.d(LOG_TAG, "New socket status: $status")
@@ -65,6 +55,16 @@ internal class QuotesViewModel @Inject constructor(
 
     fun processStart() {
         Log.d(LOG_TAG, "processStart")
+
+        compositeDisposable += interactor.connect()
+            .subscribeBy(
+                onComplete = {
+                    Log.d(LOG_TAG, "Connection completed")
+                },
+                onError = { error ->
+                    Log.e(LOG_TAG, "Connect error: $error")
+                }
+            )
     }
 
     fun processStop() {

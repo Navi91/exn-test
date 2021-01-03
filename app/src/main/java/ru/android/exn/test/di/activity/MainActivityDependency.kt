@@ -2,7 +2,7 @@ package ru.android.exn.test.di.activity
 
 import ru.android.exn.basic.navigation.NavEventProvider
 import ru.android.exn.shared.quotes.data.datasource.InstrumentDao
-import ru.android.exn.shared.quotes.data.datasource.QuotesSocket
+import ru.android.exn.shared.quotes.data.datasource.QuotesSocketDataSource
 import ru.android.exn.shared.quotes.domain.repository.InstrumentRepository
 import ru.android.exn.shared.quotes.domain.repository.QuotesRepository
 import ru.android.exn.shared.quotes.domain.repository.QuotesSocketRepository
@@ -16,7 +16,7 @@ interface MainActivityDependency {
 
     fun getNavigationEventProvider(): NavEventProvider
 
-    fun getQuotesSocket(): QuotesSocket
+    fun getQuotesSocketDataSource(): QuotesSocketDataSource
 
     fun getQuotesSocketRepository(): QuotesSocketRepository
 

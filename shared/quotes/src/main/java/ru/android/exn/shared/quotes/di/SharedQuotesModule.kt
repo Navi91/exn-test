@@ -4,7 +4,8 @@ import dagger.Binds
 import dagger.Module
 import dagger.Provides
 import ru.android.exn.basic.dagger.ApplicationScope
-import ru.android.exn.shared.quotes.data.datasource.QuotesSocket
+import ru.android.exn.shared.quotes.data.QuotesWebSocketFactory
+import ru.android.exn.shared.quotes.data.datasource.QuotesSocketDataSource
 import ru.android.exn.shared.quotes.data.repository.InstrumentRepositoryImpl
 import ru.android.exn.shared.quotes.data.repository.QuotesRepositoryImpl
 import ru.android.exn.shared.quotes.data.repository.QuotesSocketRepositoryImpl
@@ -18,11 +19,11 @@ interface SharedQuotesModule {
     @Module
     companion object {
 
+        @JvmStatic
         @Provides
         @ApplicationScope
-        @JvmStatic
-        fun provideQuotesSocket(): QuotesSocket =
-            QuotesSocket()
+        fun provideQuotesSocketDataSource(factory: QuotesWebSocketFactory): QuotesSocketDataSource =
+            QuotesSocketDataSource(factory)
     }
 
     @Binds

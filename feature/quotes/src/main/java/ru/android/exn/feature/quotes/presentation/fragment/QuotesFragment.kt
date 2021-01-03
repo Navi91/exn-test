@@ -93,6 +93,18 @@ internal class QuotesFragment : Fragment() {
         })
     }
 
+    override fun onStart() {
+        super.onStart()
+
+        viewModel.processStart()
+    }
+
+    override fun onStop() {
+        super.onStop()
+
+        viewModel.processStop()
+    }
+
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
 
