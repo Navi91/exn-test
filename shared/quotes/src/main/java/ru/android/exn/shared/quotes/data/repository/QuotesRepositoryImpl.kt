@@ -13,6 +13,6 @@ class QuotesRepositoryImpl @Inject constructor(
 ) : QuotesRepository {
 
     override fun observeQuotes(): Observable<List<Quote>> = dataSource
-            .observeMessages()
+            .observeMessage()
             .map { message -> messageMapper.toQuotes(message) }
 }

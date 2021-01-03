@@ -26,7 +26,7 @@ class QuotesSocket(
         .fromAction {
             socket.connect()
         }
-        .doOnComplete {
+        .doOnSubscribe {
             messageSubject.onNext("""{"ticks":[{"s":"BTCUSD","b":"27271.04","bf":1,"a":"27286.39","af":2,"spr":"153.5"},{"s":"BTCUSD","b":"27265.07","bf":2,"a":"27285.35","af":2,"spr":"202.8"}]}""")
         }
 
