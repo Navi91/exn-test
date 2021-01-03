@@ -1,13 +1,12 @@
 package ru.android.exn.shared.quotes.data.mapper
 
-import ru.android.exn.shared.quotes.domain.entity.Instrument
 import javax.inject.Inject
 
 class SocketCommandMapper @Inject constructor() {
 
-    fun toSubscribeCommand(instrument: Instrument): String =
-        "SUBSCRIBE: ${instrument.id}"
+    fun toSubscribeCommand(instrumentId: String): String =
+        "SUBSCRIBE: $instrumentId"
 
-    fun toUnsubscribeCommand(instrument: Instrument): String =
-        "UNSUBSCRIBE: ${instrument.id}"
+    fun toUnsubscribeCommand(instrumentId: String): String =
+        "UNSUBSCRIBE: $instrumentId"
 }

@@ -11,9 +11,9 @@ interface QuotesSocketRepository {
 
     fun disconnect()
 
-    fun subscribe(instrument: Instrument) : Completable
+    fun subscribe(instrumentId: String) : Completable
 
-    fun unsubscribe(instrument: Instrument) : Completable
+    fun unsubscribe(instrumentId: String) : Completable
 
     fun observeStatus(): Observable<SocketStatus>
 }

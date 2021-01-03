@@ -3,6 +3,7 @@ package ru.android.exn.feature.settings.di
 import ru.android.exn.basic.navigation.NavEventProvider
 import ru.android.exn.shared.quotes.data.datasource.InstrumentDao
 import ru.android.exn.shared.quotes.domain.repository.InstrumentRepository
+import ru.android.exn.shared.quotes.domain.repository.QuotesSocketRepository
 
 interface SettingsFragmentDependency {
 
@@ -16,4 +17,6 @@ interface SettingsFragmentDependency {
     fun getInstrumentDao(): InstrumentDao
 
     fun getInstrumentRepository(): InstrumentRepository
+
+    fun getQuotesSocketRepository(): QuotesSocketRepository
 }

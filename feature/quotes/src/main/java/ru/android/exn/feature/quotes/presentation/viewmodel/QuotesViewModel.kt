@@ -25,7 +25,7 @@ internal class QuotesViewModel @Inject constructor(
     val model = MutableLiveData<List<Quote>>()
 
     private val quotes = mutableListOf<Quote>()
-    private val visibleInstrumentIds = mutableListOf<String>()
+    private val orderInstrumentIds = mutableListOf<String>()
 
     private val compositeDisposable = CompositeDisposable()
 
@@ -117,19 +117,19 @@ internal class QuotesViewModel @Inject constructor(
     private fun updateInstrumentIds(newSubscribedInstrumentIds: List<String>) {
         val newInstrumentIds = mutableListOf<String>()
 
-        visibleInstrumentIds.forEach { instrumentId ->
+        orderInstrumentIds.forEach { instrumentId ->
             if (newSubscribedInstrumentIds.contains(instrumentId)) {
                 newInstrumentIds.add(instrumentId)
             }
         }
 
         newSubscribedInstrumentIds.forEach { instrumentId ->
-            if (!visibleInstrumentIds.contains(instrumentId)) {
+            if (!orderInstrumentIds.contains(instrumentId)) {
                 newInstrumentIds.add(instrumentId)
             }
         }
 
-        visibleInstrumentIds.apply {
+        orderInstrumentIds.apply {
             clear()
             addAll(newInstrumentIds)
         }
@@ -147,17 +147,17 @@ internal class QuotesViewModel @Inject constructor(
     }
 
     private fun updateModel() {
-        val modelQuotes = mutableListOf<Quote>()
+        val orderedQuotes = mutableListOf<Quote>()
 
-        visibleInstrumentIds.forEach { instrumentId ->
+        orderInstrumentIds.forEach { instrumentId ->
             val quote = quotes.firstOrNull { it.instrumentId == instrumentId }
 
             if (quote != null) {
-                modelQuotes.add(quote)
+                orderedQuotes.add(quote)
             }
         }
 
-        model.postValue(modelQuotes)
+        model.postValue(orderedQuotes)
     }
 
     private companion object {

@@ -10,7 +10,6 @@ import ru.android.exn.shared.quotes.data.datasource.QuotesSocketDataSource
 import ru.android.exn.shared.quotes.data.mapper.InstrumentDtoMapper
 import ru.android.exn.shared.quotes.data.mapper.SocketCommandMapper
 import ru.android.exn.shared.quotes.data.mapper.WebSocketStateMapper
-import ru.android.exn.shared.quotes.domain.entity.Instrument
 import ru.android.exn.shared.quotes.domain.entity.SocketStatus
 import ru.android.exn.shared.quotes.domain.repository.QuotesSocketRepository
 import javax.inject.Inject
@@ -38,7 +37,7 @@ class QuotesSocketRepositoryImpl @Inject constructor(
             }
         }
         .flattenAsFlowable { it }
-        .flatMapCompletable { instrument -> subscribe(instrument) }
+        .flatMapCompletable { instrument -> subscribe(instrument.id) }
         .doOnComplete { Log.d(LOG_TAG, "Send subscribe commands completed") }
         .subscribeOn(Schedulers.io())
 
@@ -48,21 +47,21 @@ class QuotesSocketRepositoryImpl @Inject constructor(
         dataSource.disconnect()
     }
 
-    override fun subscribe(instrument: Instrument): Completable = Single
+    override fun subscribe(instrumentId: String): Completable = Single
         .fromCallable {
-            socketCommandMapper.toSubscribeCommand(instrument)
+            socketCommandMapper.toSubscribeCommand(instrumentId)
         }
-        .doOnSubscribe { Log.d(LOG_TAG, "subscribe instrument: $instrument") }
+        .doOnSubscribe { Log.d(LOG_TAG, "subscribe instrument: $instrumentId") }
         .doOnSuccess { subscribeCommand ->
             dataSource.sendCommand(subscribeCommand)
         }
         .ignoreElement()
 
-    override fun unsubscribe(instrument: Instrument): Completable = Single
+    override fun unsubscribe(instrumentId: String): Completable = Single
         .fromCallable {
-            socketCommandMapper.toSubscribeCommand(instrument)
+            socketCommandMapper.toUnsubscribeCommand(instrumentId)
         }
-        .doOnSubscribe { Log.d(LOG_TAG, "unsubscribe instrument: $instrument") }
+        .doOnSubscribe { Log.d(LOG_TAG, "unsubscribe instrument: $instrumentId") }
         .doOnSuccess { subscribeCommand ->
             dataSource.sendCommand(subscribeCommand)
         }
