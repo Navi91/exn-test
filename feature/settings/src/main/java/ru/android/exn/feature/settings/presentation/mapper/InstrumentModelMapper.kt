@@ -10,7 +10,6 @@ internal class InstrumentModelMapper @Inject constructor() {
         InstrumentModel(
             id = instrument.id,
             displayName = instrument.displayName,
-            order = instrument.order,
-            isChecked = instrument.isVisible
+            isChecked = instrument.isSubscribed
         )
 }

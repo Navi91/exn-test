@@ -10,7 +10,6 @@ class InstrumentDtoMapper @Inject constructor() {
         Instrument(
             id = dto.id,
             displayName = dto.displayName,
-            isVisible = dto.isVisible,
-            order = dto.order
+            isSubscribed = dto.isSubscribed
         )
 }

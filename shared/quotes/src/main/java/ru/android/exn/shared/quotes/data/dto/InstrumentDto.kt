@@ -9,6 +9,5 @@ import androidx.room.PrimaryKey
 data class InstrumentDto(
     @PrimaryKey val id: String,
     val displayName: String,
-    val isVisible: Boolean,
-    val order: Int
+    val isSubscribed: Boolean
 )

@@ -24,6 +24,8 @@ class QuotesSocketDataSource @Inject constructor(
     private var stateDisposable: Disposable? = null
 
     fun connect(): Completable {
+        Log.d(LOG_TAG, "connect")
+
         val socket = QuotesSocket(factory)
         observeMessage(socket)
         observeState(socket)
@@ -34,6 +36,8 @@ class QuotesSocketDataSource @Inject constructor(
     }
 
     fun disconnect() {
+        Log.d(LOG_TAG, "disconnect")
+
         activeSocket?.disconnect()
         messageDisposable?.dispose()
         stateDisposable?.dispose()
