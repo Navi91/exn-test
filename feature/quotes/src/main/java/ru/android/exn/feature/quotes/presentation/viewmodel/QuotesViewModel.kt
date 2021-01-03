@@ -25,7 +25,7 @@ internal class QuotesViewModel @Inject constructor(
     val model = MutableLiveData<List<Quote>>()
 
     private val quotes = mutableListOf<Quote>()
-    private val instrumentsOrderList = mutableListOf<String>()
+    private val instrumentIds = mutableListOf<String>()
 
     private val compositeDisposable = CompositeDisposable()
 
@@ -35,17 +35,28 @@ internal class QuotesViewModel @Inject constructor(
         getInstrumentsUseCase()
             .map { instruments -> instruments.filter { it.isSubscribed } }
             .map { instruments -> instruments.map { it.id } }
-            .doOnSuccess { instrumentIds ->
-                Log.d(LOG_TAG, "Get instruments success: $instrumentIds")
+            .subscribeBy(
+                onSuccess = { instrumentIds ->
+                    Log.d(LOG_TAG, "Get instruments success: $instrumentIds")
 
-                instrumentsOrderList.addAll(instrumentIds)
-            }
-            .flatMapObservable { observeQuotesUseCase() }
+                    updateInstrumentIds(instrumentIds)
+                },
+                onError = { error ->
+                    Log.e(LOG_TAG, "Observe instruments error: $error")
+                }
+            )
+
+
+    }
+
+    private fun observeQuotes() {
+        observeQuotesUseCase()
             .subscribeBy(
                 onNext = { quotes ->
                     Log.v(LOG_TAG, "New quotes: $quotes")
 
                     setQuotes(quotes)
+                    updateModel()
                 },
                 onError = { error ->
                     Log.e(LOG_TAG, "Observe quotes error: $error")
@@ -102,6 +113,29 @@ internal class QuotesViewModel @Inject constructor(
             })
     }
 
+    private fun updateInstrumentIds(newSubscribedInstrumentIds: List<String>) {
+        val newInstrumentIds = mutableListOf<String>()
+
+        instrumentIds.forEach { instrumentId ->
+            if (newSubscribedInstrumentIds.contains(instrumentId)) {
+                newInstrumentIds.add(instrumentId)
+            }
+        }
+
+        newSubscribedInstrumentIds.forEach { instrumentId ->
+            if (!instrumentIds.contains(instrumentId)) {
+                newInstrumentIds.add(instrumentId)
+            }
+        }
+
+        instrumentIds.apply {
+            clear()
+            addAll(newInstrumentIds)
+        }
+
+        updateModel()
+    }
+
     private fun setQuotes(quotes: List<Quote>) {
         this.quotes.apply {
             clear()
@@ -114,15 +148,13 @@ internal class QuotesViewModel @Inject constructor(
     private fun updateModel() {
         val modelQuotes = mutableListOf<Quote>()
 
-        instrumentsOrderList.forEach { instrumentId ->
+        instrumentIds.forEach { instrumentId ->
             val quote = quotes.firstOrNull { it.instrumentId == instrumentId }
 
             if (quote != null) {
                 modelQuotes.add(quote)
             }
         }
-
-        Log.d(LOG_TAG, "Post model: $modelQuotes")
 
         model.postValue(modelQuotes)
     }

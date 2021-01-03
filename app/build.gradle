@@ -45,6 +45,7 @@ apply from: "$rootDir/dependencies.gradle"
 dependencies {
     implementation project(":basic:dagger")
     implementation project(":basic:navigation")
+    implementation project(":basic:viewmodel")
     implementation project(":shared:quotes")
     implementation project(":feature:quotes")
     implementation project(":feature:settings")
