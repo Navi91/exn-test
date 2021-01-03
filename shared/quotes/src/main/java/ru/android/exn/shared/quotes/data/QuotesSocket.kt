@@ -26,7 +26,7 @@ class QuotesSocket(
 
     fun connect(): Completable = Completable
         .fromAction {
-            socket.connect()
+            socket.connectAsynchronously()
         }
         .doOnSubscribe {
             listOf("BTCUSD", "EURUSD", "EURGBP", "USDJPY", "USDCHF", "USDCAD").forEach { id ->
@@ -98,6 +98,10 @@ class QuotesSocket(
             }
     }
 
+    override fun onConnectError(websocket: WebSocket?, cause: WebSocketException?) {
+        Log.e(LOG_TAG, "onConnectError cause: $cause")
+    }
+
     override fun onDisconnected(
         websocket: WebSocket?,
         serverCloseFrame: WebSocketFrame?,
@@ -122,7 +126,7 @@ class QuotesSocket(
 
         socket.removeListener(this)
         initSocket()
-        connect()
+        socket.connectAsynchronously()
     }
 
     private fun initSocket() {
