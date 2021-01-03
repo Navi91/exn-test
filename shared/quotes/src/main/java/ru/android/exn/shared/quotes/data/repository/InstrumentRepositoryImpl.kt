@@ -1,5 +1,6 @@
 package ru.android.exn.shared.quotes.data.repository
 
+import android.util.Log
 import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.Single
@@ -18,15 +19,18 @@ class InstrumentRepositoryImpl @Inject constructor(
 ) : InstrumentRepository {
 
     override fun getInstruments(): Single<List<Instrument>> = dao
-        .getAllSingle()
+        .getAll()
         .map { dtoList ->
             dtoList.map { dto -> mapper.toInstrument(dto) }
         }
         .subscribeOn(Schedulers.io())
 
-    override fun observeInstruments(): Observable<List<Instrument>> {
-        TODO("Not yet implemented")
-    }
+    override fun observeInstruments(): Observable<List<Instrument>> = dao
+        .observeAll()
+        .map { dtoList ->
+            dtoList.map { dto -> mapper.toInstrument(dto) }
+        }
+        .subscribeOn(Schedulers.io())
 
     override fun setInstrumentVisibility(
         instrumentId: String,
@@ -36,13 +40,22 @@ class InstrumentRepositoryImpl @Inject constructor(
         .subscribeOn(Schedulers.io())
 
     override fun prepopulateIfNeed(): Completable = dao
-        .getAllSingle()
+        .getAll()
         .flatMapCompletable { instruments ->
             if (instruments.isEmpty()) {
+                Log.d(LOG_TAG, "Instruments is empty, start populate")
+
                 dao.insertAll(factory.createPrepopulateInstruments())
             } else {
+                Log.d(LOG_TAG, "Instruments is not empty")
+
                 Completable.complete()
             }
         }
         .subscribeOn(Schedulers.io())
+
+    private companion object {
+
+        const val LOG_TAG = "InstrumentRepositoryImpl"
+    }
 }

@@ -10,7 +10,7 @@ import ru.android.exn.feature.quotes.presentation.navigation.QuotesRouter
 import ru.android.exn.shared.quotes.domain.entity.Quote
 import ru.android.exn.shared.quotes.domain.entity.SocketStatus
 import ru.android.exn.shared.quotes.domain.interactor.QuotesSocketInteractor
-import ru.android.exn.shared.quotes.domain.usecase.GetInstrumentsUseCase
+import ru.android.exn.shared.quotes.domain.usecase.ObserveInstrumentsUseCase
 import ru.android.exn.shared.quotes.domain.usecase.ObserveQuotesUseCase
 import javax.inject.Inject
 
@@ -18,35 +18,21 @@ internal class QuotesViewModel @Inject constructor(
     private val router: QuotesRouter,
     private val interactor: QuotesSocketInteractor,
     private val observeQuotesUseCase: ObserveQuotesUseCase,
-    private val getInstrumentsUseCase: GetInstrumentsUseCase
+    private val observeInstrumentsUseCase: ObserveInstrumentsUseCase
 ) : ViewModel() {
 
     val socketStatus = MutableLiveData<SocketStatus>()
     val model = MutableLiveData<List<Quote>>()
 
     private val quotes = mutableListOf<Quote>()
-    private val instrumentIds = mutableListOf<String>()
+    private val visibleInstrumentIds = mutableListOf<String>()
 
     private val compositeDisposable = CompositeDisposable()
 
     init {
         observeSocketStatus()
-
-        getInstrumentsUseCase()
-            .map { instruments -> instruments.filter { it.isSubscribed } }
-            .map { instruments -> instruments.map { it.id } }
-            .subscribeBy(
-                onSuccess = { instrumentIds ->
-                    Log.d(LOG_TAG, "Get instruments success: $instrumentIds")
-
-                    updateInstrumentIds(instrumentIds)
-                },
-                onError = { error ->
-                    Log.e(LOG_TAG, "Observe instruments error: $error")
-                }
-            )
-
-
+        observeQuotes()
+        observeInstruments()
     }
 
     private fun observeQuotes() {
@@ -55,11 +41,26 @@ internal class QuotesViewModel @Inject constructor(
                 onNext = { quotes ->
                     Log.v(LOG_TAG, "New quotes: $quotes")
 
-                    setQuotes(quotes)
-                    updateModel()
+                    updateQuotes(quotes)
                 },
                 onError = { error ->
                     Log.e(LOG_TAG, "Observe quotes error: $error")
+                }
+            )
+    }
+
+    private fun observeInstruments() {
+        observeInstrumentsUseCase()
+            .map { instruments -> instruments.filter { it.isSubscribed } }
+            .map { instruments -> instruments.map { it.id } }
+            .subscribeBy(
+                onNext = { instrumentIds ->
+                    Log.d(LOG_TAG, "New subscribed instruments success: $instrumentIds")
+
+                    updateInstrumentIds(instrumentIds)
+                },
+                onError = { error ->
+                    Log.e(LOG_TAG, "Observe instruments error: $error")
                 }
             )
     }
@@ -116,19 +117,19 @@ internal class QuotesViewModel @Inject constructor(
     private fun updateInstrumentIds(newSubscribedInstrumentIds: List<String>) {
         val newInstrumentIds = mutableListOf<String>()
 
-        instrumentIds.forEach { instrumentId ->
+        visibleInstrumentIds.forEach { instrumentId ->
             if (newSubscribedInstrumentIds.contains(instrumentId)) {
                 newInstrumentIds.add(instrumentId)
             }
         }
 
         newSubscribedInstrumentIds.forEach { instrumentId ->
-            if (!instrumentIds.contains(instrumentId)) {
+            if (!visibleInstrumentIds.contains(instrumentId)) {
                 newInstrumentIds.add(instrumentId)
             }
         }
 
-        instrumentIds.apply {
+        visibleInstrumentIds.apply {
             clear()
             addAll(newInstrumentIds)
         }
@@ -136,7 +137,7 @@ internal class QuotesViewModel @Inject constructor(
         updateModel()
     }
 
-    private fun setQuotes(quotes: List<Quote>) {
+    private fun updateQuotes(quotes: List<Quote>) {
         this.quotes.apply {
             clear()
             addAll(quotes)
@@ -148,7 +149,7 @@ internal class QuotesViewModel @Inject constructor(
     private fun updateModel() {
         val modelQuotes = mutableListOf<Quote>()
 
-        instrumentIds.forEach { instrumentId ->
+        visibleInstrumentIds.forEach { instrumentId ->
             val quote = quotes.firstOrNull { it.instrumentId == instrumentId }
 
             if (quote != null) {
