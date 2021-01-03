@@ -8,6 +8,8 @@ import io.reactivex.rxkotlin.subscribeBy
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.PublishSubject
+import java.util.concurrent.TimeUnit
+import kotlin.random.Random
 
 class QuotesSocket(
     private val factory: QuotesWebSocketFactory
@@ -27,8 +29,24 @@ class QuotesSocket(
             socket.connect()
         }
         .doOnSubscribe {
-            messageSubject.onNext("""{"ticks":[{"s":"BTCUSD","b":"27271.04","bf":1,"a":"27286.39","af":2,"spr":"153.5"},{"s":"BTCUSD","b":"27265.07","bf":2,"a":"27285.35","af":2,"spr":"202.8"}]}""")
+            listOf("BTCUSD", "EURUSD", "EURGBP", "USDJPY", "USDCHF", "USDCAD").forEach { id ->
+                Observable.interval(Random.nextLong(1000, 2000), TimeUnit.MILLISECONDS)
+                    .doOnNext {
+                        messageSubject.onNext(
+                            createTick(
+                                id,
+                                Random.nextInt(10000),
+                                Random.nextInt(10000),
+                                Random.nextInt(10000)
+                            )
+                        )
+                    }
+                    .subscribe()
+            }
         }
+
+    private fun createTick(id: String, bid: Int, ask: Int, spread: Int): String =
+        """{"ticks":[{"s":"$id","b":"$bid","bf":1,"a":"$ask","af":2,"spr":"$spread"}]}"""
 
     fun disconnect() {
         socket.removeListener(this)
