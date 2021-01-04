@@ -2,6 +2,7 @@ package ru.android.exn.feature.quotes.presentation.viewmodel
 
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
 import io.reactivex.Completable
 import io.reactivex.Flowable
@@ -13,10 +14,10 @@ import io.reactivex.rxkotlin.subscribeBy
 import io.reactivex.subjects.PublishSubject
 import ru.android.exn.feature.quotes.presentation.mapper.QuoteModelMapper
 import ru.android.exn.feature.quotes.presentation.model.QuoteModel
+import ru.android.exn.feature.quotes.presentation.model.SocketStatusModel
 import ru.android.exn.feature.quotes.presentation.navigation.QuotesRouter
 import ru.android.exn.shared.quotes.domain.entity.Instrument
 import ru.android.exn.shared.quotes.domain.entity.Quote
-import ru.android.exn.shared.quotes.domain.entity.SocketStatus
 import ru.android.exn.shared.quotes.domain.interactor.QuotesSocketInteractor
 import ru.android.exn.shared.quotes.domain.usecase.ObserveInstrumentsUseCase
 import ru.android.exn.shared.quotes.domain.usecase.ObserveQuotesUseCase
@@ -33,7 +34,8 @@ internal class QuotesViewModel @Inject constructor(
     private val quoteModelMapper: QuoteModelMapper
 ) : ViewModel() {
 
-    val socketStatus = MutableLiveData<SocketStatus>()
+    private val socketStatusMutable = MutableLiveData<SocketStatusModel>()
+    val socketStatus = Transformations.distinctUntilChanged(socketStatusMutable)
     val model = MutableLiveData<List<QuoteModel>>()
 
     private val quotes = mutableListOf<Quote>()
@@ -44,7 +46,6 @@ internal class QuotesViewModel @Inject constructor(
     private val compositeDisposable = CompositeDisposable()
 
     init {
-        observeSocketStatus()
         observeQuotes()
         observeInstruments()
         observeSocketConnection()
@@ -142,7 +143,17 @@ internal class QuotesViewModel @Inject constructor(
 
                 if (isStarted) {
                     interactor.connect()
-                        .doOnSubscribe { Log.d(LOG_TAG, "Try to connect") }
+                        .doOnSubscribe {
+                            Log.d(LOG_TAG, "Try to connect")
+
+                            socketStatusMutable.postValue(SocketStatusModel.CONNECTING)
+                        }
+                        .doOnComplete {
+                            socketStatusMutable.postValue(SocketStatusModel.CONNECTED)
+                        }
+                        .doOnError { error ->
+                            Log.w(LOG_TAG, "Connect error: $error")
+                        }
                         .retryWhen { handler ->
                             handler
                                 .flatMap {
@@ -198,17 +209,6 @@ internal class QuotesViewModel @Inject constructor(
                     Log.e(LOG_TAG, "Observe instruments error: $error")
                 }
             )
-    }
-
-    private fun observeSocketStatus() {
-        compositeDisposable += interactor.observeStatus()
-            .subscribe({ status ->
-                Log.d(LOG_TAG, "New socket status: $status")
-
-                socketStatus.postValue(status)
-            }, { error ->
-                Log.e(LOG_TAG, "Observe socket status error: $error")
-            })
     }
 
     private fun updateInstruments(updateInstruments: List<Instrument>) {

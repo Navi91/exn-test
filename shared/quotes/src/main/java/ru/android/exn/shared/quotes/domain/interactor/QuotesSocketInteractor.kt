@@ -18,9 +18,6 @@ class QuotesSocketInteractor @Inject constructor(
         repository.disconnect()
     }
 
-    fun observeStatus(): Observable<SocketStatus> =
-        repository.observeStatus()
-
     fun observeDisconnect(): Observable<Unit> =
         repository.observeDisconnect()
 }

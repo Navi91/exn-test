@@ -25,6 +25,10 @@ class QuotesSocket(
 
     fun connect(): Completable = Completable
         .fromAction {
+            disconnect()
+
+            socket = factory.create()
+            socket.addListener(this)
             socket.connect()
         }
         .andThen(stateSubject)

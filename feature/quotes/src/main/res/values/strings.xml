@@ -3,4 +3,9 @@
 
     <string name="undefined_value">N/A</string>
     <string name="bid_and_ask_separator">/</string>
+    <string name="instrument_title">Instrument</string>
+    <string name="bid_and_ask_title">BID / ASK</string>
+    <string name="spread_title">SPREAD</string>
+    <string name="connecting_status">Connecting…</string>
+    <string name="connected_status">connection established</string>
 </resources>

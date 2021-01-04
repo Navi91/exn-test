@@ -1,5 +1,6 @@
 package ru.android.exn.feature.quotes.presentation.fragment
 
+import android.animation.ValueAnimator
 import android.content.Context
 import android.os.Bundle
 import android.view.*
@@ -18,8 +19,8 @@ import ru.android.exn.feature.quotes.di.QuotesFragmentDependency
 import ru.android.exn.feature.quotes.presentation.adapter.QuotesAdapter
 import ru.android.exn.feature.quotes.presentation.adapter.QuotesDiffUtilCallback
 import ru.android.exn.feature.quotes.presentation.adapter.QuotesItemTouchHelperCallback
+import ru.android.exn.feature.quotes.presentation.model.SocketStatusModel
 import ru.android.exn.feature.quotes.presentation.viewmodel.QuotesViewModel
-import ru.android.exn.shared.quotes.domain.entity.SocketStatus
 import javax.inject.Inject
 
 internal class QuotesFragment : Fragment() {
@@ -83,11 +84,12 @@ internal class QuotesFragment : Fragment() {
 
         viewModel.socketStatus.observe(viewLifecycleOwner, { socketStatus ->
             when (socketStatus) {
-                SocketStatus.CREATED -> statusTextView.text = "created"
-                SocketStatus.CONNECTING -> statusTextView.text = "Connecting"
-                SocketStatus.OPEN -> statusTextView.text = "open"
-                SocketStatus.CLOSING -> statusTextView.text = "closing"
-                SocketStatus.CLOSED -> statusTextView.text = "closed"
+                SocketStatusModel.CONNECTING -> {
+                    showStatusTextView()
+                }
+                SocketStatusModel.CONNECTED -> {
+                    hideStatusTextView()
+                }
             }
         })
 
@@ -152,5 +154,34 @@ internal class QuotesFragment : Fragment() {
                 }
             }
         )
+    }
+
+
+
+    private fun showStatusTextView() {
+        ValueAnimator.ofInt(
+            statusTextView.height,
+            resources.getDimensionPixelSize(R.dimen.status_text_view_height)
+        ).apply {
+            addUpdateListener {
+                val newHeight = (it.animatedValue as Int)
+                statusTextView.layoutParams = statusTextView.layoutParams.apply {
+                    height = newHeight
+                }
+            }
+        }
+            .start()
+    }
+
+    private fun hideStatusTextView() {
+        ValueAnimator.ofInt(statusTextView.height, 0).apply {
+            addUpdateListener {
+                val newHeight = (it.animatedValue as Int)
+                statusTextView.layoutParams = statusTextView.layoutParams.apply {
+                    height = newHeight
+                }
+            }
+        }
+            .start()
     }
 }

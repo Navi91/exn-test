@@ -8,10 +8,11 @@
 
     <TextView
         android:id="@+id/status_text_view"
+        style="@style/AppTextView.16.OneLine.Center"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        tools:text="Connecting" />
+        android:layout_height="0dp"
+        tools:layout_height="@dimen/status_text_view_height"
+        android:text="@string/connecting_status" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
