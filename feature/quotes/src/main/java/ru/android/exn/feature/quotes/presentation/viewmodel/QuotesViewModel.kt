@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import io.reactivex.Observable
+import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
@@ -18,6 +19,7 @@ import ru.android.exn.shared.quotes.domain.entity.SocketStatus
 import ru.android.exn.shared.quotes.domain.interactor.QuotesSocketInteractor
 import ru.android.exn.shared.quotes.domain.usecase.ObserveInstrumentsUseCase
 import ru.android.exn.shared.quotes.domain.usecase.ObserveQuotesUseCase
+import ru.android.exn.shared.quotes.domain.usecase.SetInstrumentSubscriptionUseCase
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
@@ -26,6 +28,7 @@ internal class QuotesViewModel @Inject constructor(
     private val interactor: QuotesSocketInteractor,
     private val observeQuotesUseCase: ObserveQuotesUseCase,
     private val observeInstrumentsUseCase: ObserveInstrumentsUseCase,
+    private val setInstrumentSubscriptionUseCase: SetInstrumentSubscriptionUseCase,
     private val quoteModelMapper: QuoteModelMapper
 ) : ViewModel() {
 
@@ -147,7 +150,23 @@ internal class QuotesViewModel @Inject constructor(
     }
 
     fun processSwipe(swipedPosition: Int) {
+        Log.d(LOG_TAG, "processSwipe swipedPosition: $swipedPosition")
 
+        Single.fromCallable {
+            getInstrument(swipedPosition)
+        }
+            .doOnSuccess { instrument -> hideInstrument(instrument) }
+            .flatMapCompletable { instrument ->
+                setInstrumentSubscriptionUseCase(instrument.id, false)
+            }
+            .subscribeBy(
+                onComplete = {
+                    Log.d(LOG_TAG, "Process instrument swipe completed")
+                },
+                onError = { error ->
+                    Log.e(LOG_TAG, "Process instrument swipe error: $error")
+                }
+            )
     }
 
     fun openSettings() {
@@ -194,6 +213,20 @@ internal class QuotesViewModel @Inject constructor(
         updateModel()
     }
 
+    private fun hideInstrument(instrument: Instrument) {
+        orderInstruments.replaceInstrumentById(instrument.copy(isSubscribed = false))
+
+        updateModel()
+    }
+
+    private fun MutableList<Instrument>.replaceInstrumentById(instrument: Instrument) {
+        val index = indexOfFirst { it.id == instrument.id }
+
+        if (index != -1) {
+            set(index, instrument)
+        }
+    }
+
     private fun updateQuotes(quotes: List<Quote>) {
         this.quotes.apply {
             clear()
@@ -215,6 +248,20 @@ internal class QuotesViewModel @Inject constructor(
         Log.v(LOG_TAG, "Post quote model: $quoteModels")
 
         model.postValue(quoteModels)
+    }
+
+    private fun getInstrument(position: Int): Instrument {
+        var index = 0
+
+        orderInstruments.forEach { instrument ->
+            if (instrument.isSubscribed && index == position) {
+                return instrument
+            }
+
+            if (instrument.isSubscribed) index++
+        }
+
+        error("Not found visible instrument for position: $position and order instruments: $orderInstruments")
     }
 
     private companion object {

@@ -2,4 +2,7 @@
     <string name="app_name">Quotes</string>
     <string name="quotes_title">Quotes</string>
     <string name="settings_title">Settings</string>
+    <string name="instrument_title">Instrument</string>
+    <string name="bid_and_ask_title">BID / ASK</string>
+    <string name="spread_title">SPREAD</string>
 </resources>

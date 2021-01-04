@@ -8,7 +8,7 @@
 
     <TextView
         android:id="@+id/instrument_text_view"
-        style="@style/AppTextView.16.OneLine.Center"
+        style="@style/AppTextView.16.Bold.OneLine.Center"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_marginStart="@dimen/margin_16"
@@ -19,7 +19,7 @@
 
     <TextView
         android:id="@+id/bid_text_view"
-        style="@style/AppTextView.16.OneLine.Center"
+        style="@style/AppTextView.16.Bold.OneLine.Center"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_marginEnd="@dimen/margin_4"
@@ -38,7 +38,7 @@
 
     <TextView
         android:id="@+id/ask_text_view"
-        style="@style/AppTextView.16.OneLine.Center"
+        style="@style/AppTextView.16.Bold.OneLine.Center"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_marginStart="@dimen/margin_4"
@@ -47,7 +47,7 @@
 
     <TextView
         android:id="@+id/spread_text_view"
-        style="@style/AppTextView.16.OneLine.Center"
+        style="@style/AppTextView.16.Bold.OneLine.Center"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_marginEnd="@dimen/margin_16"

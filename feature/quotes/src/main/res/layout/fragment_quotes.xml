@@ -13,6 +13,39 @@
         android:gravity="center"
         tools:text="Connecting" />
 
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:paddingStart="@dimen/padding_16"
+        android:paddingEnd="@dimen/padding_16">
+
+        <TextView
+            android:id="@+id/instrument_title_text_view"
+            style="@style/AppTextView.16.Bold.OneLine.Center"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:text="@string/instrument_title"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <TextView
+            android:id="@+id/bid_and_ask_title_text_view"
+            style="@style/AppTextView.16.Bold.OneLine.Center"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:text="@string/bid_and_ask_title"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <TextView
+            android:id="@+id/spread_title_text_view"
+            style="@style/AppTextView.16.Bold.OneLine.Center"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:text="@string/spread_title"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/quotes_recycler_view"
         android:layout_width="match_parent"
