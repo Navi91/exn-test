@@ -3,6 +3,7 @@ package ru.android.exn.feature.quotes.presentation.viewmodel
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -146,7 +147,29 @@ internal class QuotesViewModel @Inject constructor(
     }
 
     fun processMove(fromPosition: Int, newPosition: Int) {
+        Log.d(LOG_TAG, "processMove fromPosition: $fromPosition newPosition: $newPosition")
 
+        Completable.fromAction {
+            val fromInstrument = getInstrument(fromPosition)
+            val currentInstrumentOnNewPosition = getInstrument(newPosition)
+
+            val newIndex = orderInstruments.indexOfLast {
+                it.id == currentInstrumentOnNewPosition.id
+            }
+
+            orderInstruments.remove(fromInstrument)
+            orderInstruments.add(newIndex, fromInstrument)
+
+            updateModel()
+        }
+            .subscribeBy(
+                onComplete = {
+                    Log.d(LOG_TAG, "Move completed")
+                },
+                onError = { error ->
+                    Log.e(LOG_TAG, "Move error: $error")
+                }
+            )
     }
 
     fun processSwipe(swipedPosition: Int) {
