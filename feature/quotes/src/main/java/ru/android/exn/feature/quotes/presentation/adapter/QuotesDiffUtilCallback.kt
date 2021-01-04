@@ -1,11 +1,11 @@
 package ru.android.exn.feature.quotes.presentation.adapter
 
 import androidx.recyclerview.widget.DiffUtil
-import ru.android.exn.shared.quotes.domain.entity.Quote
+import ru.android.exn.feature.quotes.presentation.model.QuoteModel
 
 class QuotesDiffUtilCallback(
-    private val oldItems: List<Quote>,
-    private val newItems: List<Quote>
+    private val oldItems: List<QuoteModel>,
+    private val newItems: List<QuoteModel>
 ) : DiffUtil.Callback() {
 
     override fun getOldListSize(): Int =

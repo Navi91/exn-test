@@ -72,7 +72,7 @@ class QuotesSocket(
     }
 
     override fun onTextMessage(websocket: WebSocket?, text: String?) {
-        Log.d(LOG_TAG, "onTextMessage text: $text")
+        Log.v(LOG_TAG, "onTextMessage text: $text")
 
         messageSubject.onNext(text.orEmpty())
     }

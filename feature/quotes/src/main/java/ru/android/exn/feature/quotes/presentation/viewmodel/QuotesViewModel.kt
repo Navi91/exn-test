@@ -4,13 +4,15 @@ import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import io.reactivex.Observable
-import io.reactivex.Scheduler
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
 import io.reactivex.rxkotlin.plusAssign
 import io.reactivex.rxkotlin.subscribeBy
+import ru.android.exn.feature.quotes.presentation.mapper.QuoteModelMapper
+import ru.android.exn.feature.quotes.presentation.model.QuoteModel
 import ru.android.exn.feature.quotes.presentation.navigation.QuotesRouter
+import ru.android.exn.shared.quotes.domain.entity.Instrument
 import ru.android.exn.shared.quotes.domain.entity.Quote
 import ru.android.exn.shared.quotes.domain.entity.SocketStatus
 import ru.android.exn.shared.quotes.domain.interactor.QuotesSocketInteractor
@@ -23,14 +25,18 @@ internal class QuotesViewModel @Inject constructor(
     private val router: QuotesRouter,
     private val interactor: QuotesSocketInteractor,
     private val observeQuotesUseCase: ObserveQuotesUseCase,
-    private val observeInstrumentsUseCase: ObserveInstrumentsUseCase
+    private val observeInstrumentsUseCase: ObserveInstrumentsUseCase,
+    private val quoteModelMapper: QuoteModelMapper
 ) : ViewModel() {
 
     val socketStatus = MutableLiveData<SocketStatus>()
-    val model = MutableLiveData<List<Quote>>()
+    val model = MutableLiveData<List<QuoteModel>>()
 
     private val quotes = mutableListOf<Quote>()
-    private val orderInstrumentIds = mutableListOf<String>()
+    private val orderInstruments = mutableListOf<Instrument>()
+
+    private var isDisconnected = true
+    private var disconnectTimerDisposable: Disposable? = null
 
     private val compositeDisposable = CompositeDisposable()
 
@@ -43,6 +49,7 @@ internal class QuotesViewModel @Inject constructor(
 
     private fun observeQuotes() {
         observeQuotesUseCase()
+            .observeOn(AndroidSchedulers.mainThread())
             .subscribeBy(
                 onNext = { quotes ->
                     Log.v(LOG_TAG, "New quotes: $quotes")
@@ -57,13 +64,12 @@ internal class QuotesViewModel @Inject constructor(
 
     private fun observeInstruments() {
         compositeDisposable += observeInstrumentsUseCase()
-            .map { instruments -> instruments.filter { it.isSubscribed } }
-            .map { instruments -> instruments.map { it.id } }
+            .observeOn(AndroidSchedulers.mainThread())
             .subscribeBy(
-                onNext = { instrumentIds ->
-                    Log.d(LOG_TAG, "New subscribed instruments success: $instrumentIds")
+                onNext = { instruments ->
+                    Log.d(LOG_TAG, "New subscribed instruments success: $instruments")
 
-                    updateInstrumentIds(instrumentIds)
+                    updateInstruments(instruments)
                 },
                 onError = { error ->
                     Log.e(LOG_TAG, "Observe instruments error: $error")
@@ -92,9 +98,6 @@ internal class QuotesViewModel @Inject constructor(
         compositeDisposable.dispose()
     }
 
-
-    private var isDisconnected = true
-    private var disconnectTimerDisposable: Disposable? = null
 
     fun processStart() {
         Log.d(LOG_TAG, "processStart")
@@ -170,25 +173,23 @@ internal class QuotesViewModel @Inject constructor(
             })
     }
 
-    private fun updateInstrumentIds(newSubscribedInstrumentIds: List<String>) {
-        val newInstrumentIds = mutableListOf<String>()
+    private fun updateInstruments(updateInstruments: List<Instrument>) {
+        Log.d(LOG_TAG, "updateInstruments updateInstruments: $updateInstruments")
 
-        orderInstrumentIds.forEach { instrumentId ->
-            if (newSubscribedInstrumentIds.contains(instrumentId)) {
-                newInstrumentIds.add(instrumentId)
+        val newOrderInstruments = mutableListOf<Instrument>()
+
+        updateInstruments.forEach { instrument ->
+            if (orderInstruments.none { it.id == instrument.id }) {
+                orderInstruments.add(instrument)
             }
         }
 
-        newSubscribedInstrumentIds.forEach { instrumentId ->
-            if (!orderInstrumentIds.contains(instrumentId)) {
-                newInstrumentIds.add(instrumentId)
-            }
+        orderInstruments.forEach { instrument ->
+            newOrderInstruments.add(updateInstruments.first { it.id == instrument.id })
         }
 
-        orderInstrumentIds.apply {
-            clear()
-            addAll(newInstrumentIds)
-        }
+        orderInstruments.clear()
+        orderInstruments.addAll(newOrderInstruments)
 
         updateModel()
     }
@@ -203,17 +204,17 @@ internal class QuotesViewModel @Inject constructor(
     }
 
     private fun updateModel() {
-        val orderedQuotes = mutableListOf<Quote>()
+        val quoteModels = orderInstruments
+            .filter { it.isSubscribed }
+            .map { instrument ->
+                val quote = quotes.firstOrNull { it.instrumentId == instrument.id }
 
-        orderInstrumentIds.forEach { instrumentId ->
-            val quote = quotes.firstOrNull { it.instrumentId == instrumentId }
-
-            if (quote != null) {
-                orderedQuotes.add(quote)
+                quoteModelMapper.toQuoteModel(instrument, quote)
             }
-        }
 
-        model.postValue(orderedQuotes)
+        Log.v(LOG_TAG, "Post quote model: $quoteModels")
+
+        model.postValue(quoteModels)
     }
 
     private companion object {

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="undefined_value">N/A</string>
+    <string name="bid_and_ask_separator">/</string>
+</resources>

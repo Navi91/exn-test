@@ -38,4 +38,5 @@ dependencies {
 
     implementation "androidx.lifecycle:lifecycle-extensions:$lifecycleExtensionsVersion"
     implementation "androidx.recyclerview:recyclerview:$recyclerviewVersion"
+    implementation "androidx.constraintlayout:constraintlayout:$constaitLayoutVersion"
 }

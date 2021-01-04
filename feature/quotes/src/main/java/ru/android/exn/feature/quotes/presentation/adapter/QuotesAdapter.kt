@@ -8,13 +8,13 @@ import androidx.recyclerview.widget.RecyclerView
 import ru.android.exn.feature.quotes.R
 import ru.android.exn.feature.quotes.databinding.LayoutQuoteItemBinding
 import ru.android.exn.feature.quotes.presentation.adapter.QuotesAdapter.QuotesItemViewHolder
-import ru.android.exn.shared.quotes.domain.entity.Quote
+import ru.android.exn.feature.quotes.presentation.model.QuoteModel
 
 class QuotesAdapter : RecyclerView.Adapter<QuotesItemViewHolder>() {
 
-    val items = mutableListOf<Quote>()
+    val items = mutableListOf<QuoteModel>()
 
-    fun setItems(items: List<Quote>) {
+    fun setItems(items: List<QuoteModel>) {
         this.items.apply {
             clear()
             addAll(items)
@@ -43,15 +43,31 @@ class QuotesAdapter : RecyclerView.Adapter<QuotesItemViewHolder>() {
         private val binding = LayoutQuoteItemBinding.bind(view)
         private val instrumentTextView: TextView
             get() = binding.instrumentTextView
-        private val bindAndAskTextView: TextView
-            get() = binding.bidAndAskTextView
+        private val bindTextView: TextView
+            get() = binding.bidTextView
+        private val askTextView: TextView
+            get() = binding.askTextView
         private val spreadTextView: TextView
             get() = binding.spreadTextView
 
-        fun bind(item: Quote) {
-            instrumentTextView.text = item.instrumentId
-            bindAndAskTextView.text = "${item.bid} / ${item.ask}"
-            spreadTextView.text = item.spread.toString()
+        fun bind(item: QuoteModel) {
+            instrumentTextView.text = item.displayName
+
+            when (item) {
+                is QuoteModel.Empty -> {
+                    bindTextView.text =
+                        itemView.context.getString(R.string.undefined_value)
+                    askTextView.text =
+                        itemView.context.getString(R.string.undefined_value)
+                    spreadTextView.text = itemView.context.getString(R.string.undefined_value)
+                }
+                is QuoteModel.Value -> {
+                    bindTextView.text = "${item.bid}"
+                    askTextView.text = "${item.ask}"
+                    spreadTextView.text = item.spread.toString()
+                }
+            }
+
         }
     }
 }

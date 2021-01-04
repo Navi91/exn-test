@@ -10,7 +10,16 @@
         <item name="android:textSize">16sp</item>
     </style>
 
+    <style name="AppTextView.16.Bold">
+        <item name="android:textStyle">bold</item>
+    </style>
+
     <style name="AppTextView.16.OneLine">
+        <item name="android:maxLines">1</item>
+        <item name="android:singleLine">true</item>
+    </style>
+
+    <style name="AppTextView.16.Bold.OneLine">
         <item name="android:maxLines">1</item>
         <item name="android:singleLine">true</item>
     </style>
@@ -20,6 +29,10 @@
     </style>
 
     <style name="AppTextView.16.OneLine.Center">
+        <item name="android:gravity">center</item>
+    </style>
+
+    <style name="AppTextView.16.Bold.OneLine.Center">
         <item name="android:gravity">center</item>
     </style>
 

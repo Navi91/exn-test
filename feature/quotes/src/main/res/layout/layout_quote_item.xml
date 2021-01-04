@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="56dp"
@@ -10,21 +11,48 @@
         style="@style/AppTextView.16.OneLine.Center"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
+        android:layout_marginStart="@dimen/margin_16"
+        app:layout_constraintEnd_toStartOf="@+id/bid_text_view"
+        app:layout_constraintHorizontal_bias="0"
+        app:layout_constraintStart_toStartOf="parent"
         tools:text="BTCUSD" />
 
     <TextView
-        android:id="@+id/bid_and_ask_text_view"
+        android:id="@+id/bid_text_view"
         style="@style/AppTextView.16.OneLine.Center"
-        android:layout_width="0dp"
+        android:layout_width="wrap_content"
         android:layout_height="match_parent"
+        android:layout_marginEnd="@dimen/margin_4"
         android:layout_weight="1"
-        tools:text="27271.04 / 27286.39" />
+        app:layout_constraintEnd_toStartOf="@+id/separator_text_view"
+        tools:text="27271.04" />
+
+    <TextView
+        android:id="@+id/separator_text_view"
+        style="@style/AppTextView.16.Bold.OneLine.Center"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:text="@string/bid_and_ask_separator"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <TextView
+        android:id="@+id/ask_text_view"
+        style="@style/AppTextView.16.OneLine.Center"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_marginStart="@dimen/margin_4"
+        app:layout_constraintStart_toEndOf="@+id/separator_text_view"
+        tools:text="27286.39" />
 
     <TextView
         android:id="@+id/spread_text_view"
         style="@style/AppTextView.16.OneLine.Center"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
+        android:layout_marginEnd="@dimen/margin_16"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1"
         tools:text="153.5" />
 
-</LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
