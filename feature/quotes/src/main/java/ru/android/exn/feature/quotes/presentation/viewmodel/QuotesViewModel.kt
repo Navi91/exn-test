@@ -38,6 +38,7 @@ internal class QuotesViewModel @Inject constructor(
         observeSocketStatus()
         observeQuotes()
         observeInstruments()
+        observeDisconnect()
     }
 
     private fun observeQuotes() {
@@ -55,7 +56,7 @@ internal class QuotesViewModel @Inject constructor(
     }
 
     private fun observeInstruments() {
-        observeInstrumentsUseCase()
+        compositeDisposable += observeInstrumentsUseCase()
             .map { instruments -> instruments.filter { it.isSubscribed } }
             .map { instruments -> instruments.map { it.id } }
             .subscribeBy(
@@ -66,6 +67,21 @@ internal class QuotesViewModel @Inject constructor(
                 },
                 onError = { error ->
                     Log.e(LOG_TAG, "Observe instruments error: $error")
+                }
+            )
+    }
+
+    private fun observeDisconnect() {
+        compositeDisposable += interactor
+            .observeDisconnect()
+            .subscribeBy(
+                onNext = {
+                    Log.d(LOG_TAG, "Disconnect detected")
+
+                    connect()
+                },
+                onError = { error ->
+                    Log.e(LOG_TAG, "Observe disconnect error: $error")
                 }
             )
     }
@@ -84,21 +100,26 @@ internal class QuotesViewModel @Inject constructor(
         Log.d(LOG_TAG, "processStart")
 
         if (isDisconnected) {
-            compositeDisposable += interactor.connect()
-                .subscribeBy(
-                    onComplete = {
-                        Log.d(LOG_TAG, "Connection completed")
-                    },
-                    onError = { error ->
-                        Log.e(LOG_TAG, "Connect error: $error")
-                    }
-                )
+            connect()
         }
 
         isDisconnected = false
         disconnectTimerDisposable?.dispose()
     }
 
+    private fun connect() {
+        Log.d(LOG_TAG, "Connect")
+
+        compositeDisposable += interactor.connect()
+            .subscribeBy(
+                onComplete = {
+                    Log.d(LOG_TAG, "Connection completed")
+                },
+                onError = { error ->
+                    Log.e(LOG_TAG, "Connect error: $error")
+                }
+            )
+    }
 
     fun processStop() {
         Log.d(LOG_TAG, "processStop")

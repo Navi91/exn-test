@@ -72,6 +72,10 @@ class QuotesSocketRepositoryImpl @Inject constructor(
         .map { state -> stateMapper.toSocketStatus(state) }
         .subscribeOn(Schedulers.io())
 
+    override fun observeDisconnect(): Observable<Unit> = dataSource
+        .observeDisconnect()
+        .subscribeOn(Schedulers.io())
+
     private companion object {
 
         const val LOG_TAG = "QuotesSocketRepositoryImpl"

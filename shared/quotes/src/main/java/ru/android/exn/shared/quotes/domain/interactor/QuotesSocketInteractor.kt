@@ -8,11 +8,10 @@ import ru.android.exn.shared.quotes.domain.repository.InstrumentRepository
 import javax.inject.Inject
 
 class QuotesSocketInteractor @Inject constructor(
-    private val repository: QuotesSocketRepository,
-    private val instrumentRepository: InstrumentRepository
+    private val repository: QuotesSocketRepository
 ) {
 
-    fun connect() : Completable =
+    fun connect(): Completable =
         repository.connect()
 
     fun disconnect() {
@@ -21,4 +20,7 @@ class QuotesSocketInteractor @Inject constructor(
 
     fun observeStatus(): Observable<SocketStatus> =
         repository.observeStatus()
+
+    fun observeDisconnect(): Observable<Unit> =
+        repository.observeDisconnect()
 }

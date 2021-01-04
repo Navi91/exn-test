@@ -17,6 +17,7 @@ class QuotesSocket(
 
     private val messageSubject = PublishSubject.create<String>()
     private val stateSubject = BehaviorSubject.create<WebSocketState>()
+    private val disconnectSubject = PublishSubject.create<Unit>()
 
     init {
         initSocket()
@@ -34,12 +35,8 @@ class QuotesSocket(
     fun disconnect() {
         socket.removeListener(this)
 
-        stateSubject
-            .filter { webSocketState ->
-                webSocketState != WebSocketState.CONNECTING
-            }
-            .firstElement()
-            .doOnSuccess { socket.disconnect() }
+        WebSocketDisconnector(socket)
+            .disconnect()
             .subscribeOn(Schedulers.io())
             .subscribeBy(
                 onComplete = {
@@ -52,31 +49,15 @@ class QuotesSocket(
     }
 
     fun sendCommand(command: String) {
-        Log.d(LOG_TAG, "sendCommand command: $command state: ${socket.state}")
+        Log.d(LOG_TAG, "sendCommand command: $command")
+
         socket.sendText(command)
     }
-
-    fun observeMessage(): Observable<String> =
-        messageSubject
-
-    fun observeState(): Observable<WebSocketState> =
-        stateSubject
 
     override fun onStateChanged(websocket: WebSocket?, newState: WebSocketState) {
         Log.d(LOG_TAG, "onStateChanged newState: $newState")
 
         stateSubject.onNext(newState)
-    }
-
-    override fun onConnected(
-        websocket: WebSocket?,
-        headers: MutableMap<String, MutableList<String>>?
-    ) {
-        Log.d(LOG_TAG, "onConnected")
-    }
-
-    override fun onConnectError(websocket: WebSocket?, cause: WebSocketException?) {
-        Log.e(LOG_TAG, "onConnectError cause: $cause")
     }
 
     override fun onDisconnected(
@@ -87,7 +68,7 @@ class QuotesSocket(
     ) {
         Log.d(LOG_TAG, "onDisconnected closedByServer: $closedByServer")
 
-        reconnect()
+        disconnectSubject.onNext(Unit)
     }
 
     override fun onTextMessage(websocket: WebSocket?, text: String?) {
@@ -96,28 +77,21 @@ class QuotesSocket(
         messageSubject.onNext(text.orEmpty())
     }
 
-    override fun onTextMessageError(
-        websocket: WebSocket?,
-        cause: WebSocketException?,
-        data: ByteArray?
-    ) {
-        Log.e(LOG_TAG, "onTextMessageError cause: $cause")
-    }
-
-    private fun reconnect() {
-        Log.d(LOG_TAG, "reconnect")
-
-        socket.removeListener(this)
-        initSocket()
-        socket.connectAsynchronously()
-    }
-
     private fun initSocket() {
         Log.d(LOG_TAG, "initSocket")
 
         socket = factory.create()
         socket.addListener(this)
     }
+
+    fun observeMessage(): Observable<String> =
+        messageSubject
+
+    fun observeState(): Observable<WebSocketState> =
+        stateSubject
+
+    fun observeDisconnect(): Observable<Unit> =
+        disconnectSubject
 
     private companion object {
 

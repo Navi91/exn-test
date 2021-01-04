@@ -16,4 +16,6 @@ interface QuotesSocketRepository {
     fun unsubscribe(instrumentId: String) : Completable
 
     fun observeStatus(): Observable<SocketStatus>
+
+    fun observeDisconnect() : Observable<Unit>
 }
