@@ -19,24 +19,21 @@ class QuotesSocket(
     private val stateSubject = BehaviorSubject.create<WebSocketState>()
     private val disconnectSubject = PublishSubject.create<Unit>()
 
-    init {
-        initSocket()
-    }
-
     fun connect(): Completable = Completable
         .fromAction {
-            disconnect()
-
             socket = factory.create()
             socket.addListener(this)
             socket.connect()
         }
+        .doOnSubscribe { Log.d(LOG_TAG, "connect") }
         .andThen(stateSubject)
         .filter { webSocketState -> webSocketState == WebSocketState.OPEN }
         .firstElement()
         .ignoreElement()
 
     fun disconnect() {
+        Log.d(LOG_TAG, "disconnect")
+
         socket.removeListener(this)
 
         WebSocketDisconnector(socket)
@@ -79,13 +76,6 @@ class QuotesSocket(
         Log.v(LOG_TAG, "onTextMessage text: $text")
 
         messageSubject.onNext(text.orEmpty())
-    }
-
-    private fun initSocket() {
-        Log.d(LOG_TAG, "initSocket")
-
-        socket = factory.create()
-        socket.addListener(this)
     }
 
     fun observeMessage(): Observable<String> =

@@ -157,15 +157,13 @@ internal class QuotesViewModel @Inject constructor(
                         .retryWhen { handler ->
                             handler
                                 .flatMap {
-                                    Flowable.timer(
-                                        RECONNECT_DURATION_SEC,
-                                        TimeUnit.SECONDS
-                                    )
+                                    Flowable.timer(RECONNECT_DURATION_SEC, TimeUnit.SECONDS)
                                 }
                         }
                         .repeatWhen { handler ->
                             handler
                                 .flatMapMaybe { interactor.observeDisconnect().firstElement() }
+                                .doOnNext { Log.d(LOG_TAG, "Repeat after disconnect") }
                         }
                 } else {
                     Completable.fromAction { interactor.disconnect() }
