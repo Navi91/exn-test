@@ -8,8 +8,6 @@ import io.reactivex.rxkotlin.subscribeBy
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.PublishSubject
-import java.util.concurrent.TimeUnit
-import kotlin.random.Random
 
 class QuotesSocket(
     private val factory: QuotesWebSocketFactory
@@ -26,29 +24,12 @@ class QuotesSocket(
 
     fun connect(): Completable = Completable
         .fromAction {
-            socket.connectAsynchronously()
+            socket.connect()
         }
-        .doOnSubscribe {
-            listOf("BTCUSD", "EURUSD", "EURGBP", "USDJPY", "USDCHF", "USDCAD").forEach { id ->
-                Observable.interval(Random.nextLong(1000, 2000), TimeUnit.MILLISECONDS)
-                    .doOnNext {
-                        messageSubject.onNext(
-                            createTick(
-                                id,
-                                Random.nextInt(10000),
-                                Random.nextInt(10000),
-                                Random.nextInt(10000)
-                            )
-                        )
-                    }
-                    .subscribeBy(
-                        onError = { Log.e(LOG_TAG, "Mock error: $it") }
-                    )
-            }
-        }
-
-    private fun createTick(id: String, bid: Int, ask: Int, spread: Int): String =
-        """{"ticks":[{"s":"$id","b":"$bid","bf":1,"a":"$ask","af":2,"spr":"$spread"}]}"""
+        .andThen(stateSubject)
+        .filter { webSocketState -> webSocketState == WebSocketState.OPEN }
+        .firstElement()
+        .ignoreElement()
 
     fun disconnect() {
         socket.removeListener(this)
@@ -71,6 +52,7 @@ class QuotesSocket(
     }
 
     fun sendCommand(command: String) {
+        Log.d(LOG_TAG, "sendCommand command: $command state: ${socket.state}")
         socket.sendText(command)
     }
 
@@ -91,11 +73,6 @@ class QuotesSocket(
         headers: MutableMap<String, MutableList<String>>?
     ) {
         Log.d(LOG_TAG, "onConnected")
-
-        listOf("BTCUSD", "EURUSD", "EURGBP", "USDJPY", "GBPUSD", "USDCHF", "USDCAD")
-            .forEach {
-                websocket?.sendText("SUBSCRIBE: $it")
-            }
     }
 
     override fun onConnectError(websocket: WebSocket?, cause: WebSocketException?) {
@@ -111,6 +88,12 @@ class QuotesSocket(
         Log.d(LOG_TAG, "onDisconnected closedByServer: $closedByServer")
 
         reconnect()
+    }
+
+    override fun onTextMessage(websocket: WebSocket?, text: String?) {
+        Log.d(LOG_TAG, "onTextMessage text: $text")
+
+        messageSubject.onNext(text.orEmpty())
     }
 
     override fun onTextMessageError(
