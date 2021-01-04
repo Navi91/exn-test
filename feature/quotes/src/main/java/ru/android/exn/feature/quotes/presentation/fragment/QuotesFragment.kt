@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.view.*
 import android.widget.TextView
 import androidx.activity.OnBackPressedCallback
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.DiffUtil
@@ -51,6 +52,8 @@ internal class QuotesFragment : Fragment() {
         get() = binding.statusTextView
     private val quotesRecyclerView: RecyclerView
         get() = binding.quotesRecyclerView
+    private val emptyMessageTextView: TextView
+        get() = binding.emptyMessageTextView
 
     private val adapter: QuotesAdapter by lazy { QuotesAdapter() }
 
@@ -82,24 +85,8 @@ internal class QuotesFragment : Fragment() {
         setupQuotesRecyclerView()
         setupBackPressedCallback()
 
-        viewModel.socketStatus.observe(viewLifecycleOwner, { socketStatus ->
-            when (socketStatus) {
-                SocketStatusModel.CONNECTING -> {
-                    showStatusTextView()
-                }
-                SocketStatusModel.CONNECTED -> {
-                    hideStatusTextView()
-                }
-            }
-        })
-
-        viewModel.model.observe(viewLifecycleOwner, { quotes ->
-            val diffResult = DiffUtil.calculateDiff(QuotesDiffUtilCallback(adapter.items, quotes))
-
-            adapter.setItems(quotes)
-
-            diffResult.dispatchUpdatesTo(adapter)
-        })
+        observeConnectionStatus()
+        observeQuotes()
     }
 
     override fun onStart() {
@@ -136,6 +123,31 @@ internal class QuotesFragment : Fragment() {
         _binding = null
     }
 
+    private fun observeConnectionStatus() {
+        viewModel.socketStatus.observe(viewLifecycleOwner, { socketStatus ->
+            when (socketStatus) {
+                SocketStatusModel.CONNECTING -> {
+                    showStatusTextView()
+                }
+                SocketStatusModel.CONNECTED -> {
+                    hideStatusTextView()
+                }
+            }
+        })
+    }
+
+    private fun observeQuotes() {
+        viewModel.model.observe(viewLifecycleOwner, { quotes ->
+            val diffResult = DiffUtil.calculateDiff(QuotesDiffUtilCallback(adapter.items, quotes))
+
+            adapter.setItems(quotes)
+
+            diffResult.dispatchUpdatesTo(adapter)
+
+            emptyMessageTextView.isVisible = quotes.isEmpty()
+        })
+    }
+
     private fun setupQuotesRecyclerView() {
         val touchHelperCallback = QuotesItemTouchHelperCallback(
             { fromPosition, toPosition -> viewModel.processMove(fromPosition, toPosition) },
@@ -155,8 +167,6 @@ internal class QuotesFragment : Fragment() {
             }
         )
     }
-
-
 
     private fun showStatusTextView() {
         ValueAnimator.ofInt(

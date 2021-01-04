@@ -8,4 +8,5 @@
     <string name="spread_title">SPREAD</string>
     <string name="connecting_status">Connecting…</string>
     <string name="connected_status">connection established</string>
+    <string name="empty_quotes_message">Select instruments in the settings</string>
 </resources>

@@ -11,8 +11,17 @@
         style="@style/AppTextView.16.OneLine.Center"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        tools:layout_height="@dimen/status_text_view_height"
-        android:text="@string/connecting_status" />
+        android:text="@string/connecting_status"
+        tools:layout_height="@dimen/status_text_view_height" />
+
+    <TextView
+        android:id="@+id/empty_message_text_view"
+        style="@style/AppTextView.24.Bold.Center"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="@dimen/padding_16"
+        android:text="@string/empty_quotes_message"
+        android:visibility="gone" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
