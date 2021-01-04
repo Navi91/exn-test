@@ -4,13 +4,13 @@ import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import io.reactivex.Completable
-import io.reactivex.Observable
+import io.reactivex.Flowable
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.disposables.Disposable
 import io.reactivex.rxkotlin.plusAssign
 import io.reactivex.rxkotlin.subscribeBy
+import io.reactivex.subjects.PublishSubject
 import ru.android.exn.feature.quotes.presentation.mapper.QuoteModelMapper
 import ru.android.exn.feature.quotes.presentation.model.QuoteModel
 import ru.android.exn.feature.quotes.presentation.navigation.QuotesRouter
@@ -39,8 +39,7 @@ internal class QuotesViewModel @Inject constructor(
     private val quotes = mutableListOf<Quote>()
     private val orderInstruments = mutableListOf<Instrument>()
 
-    private var isDisconnected = true
-    private var disconnectTimerDisposable: Disposable? = null
+    private val isStartedSubject = PublishSubject.create<Boolean>()
 
     private val compositeDisposable = CompositeDisposable()
 
@@ -48,52 +47,7 @@ internal class QuotesViewModel @Inject constructor(
         observeSocketStatus()
         observeQuotes()
         observeInstruments()
-        observeDisconnect()
-    }
-
-    private fun observeQuotes() {
-        observeQuotesUseCase()
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribeBy(
-                onNext = { quotes ->
-                    Log.v(LOG_TAG, "New quotes: $quotes")
-
-                    updateQuotes(quotes)
-                },
-                onError = { error ->
-                    Log.e(LOG_TAG, "Observe quotes error: $error")
-                }
-            )
-    }
-
-    private fun observeInstruments() {
-        compositeDisposable += observeInstrumentsUseCase()
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribeBy(
-                onNext = { instruments ->
-                    Log.d(LOG_TAG, "New subscribed instruments success: $instruments")
-
-                    updateInstruments(instruments)
-                },
-                onError = { error ->
-                    Log.e(LOG_TAG, "Observe instruments error: $error")
-                }
-            )
-    }
-
-    private fun observeDisconnect() {
-        compositeDisposable += interactor
-            .observeDisconnect()
-            .subscribeBy(
-                onNext = {
-                    Log.d(LOG_TAG, "Disconnect detected")
-
-                    connect()
-                },
-                onError = { error ->
-                    Log.e(LOG_TAG, "Observe disconnect error: $error")
-                }
-            )
+        observeSocketConnection()
     }
 
     override fun onCleared() {
@@ -102,48 +56,16 @@ internal class QuotesViewModel @Inject constructor(
         compositeDisposable.dispose()
     }
 
-
     fun processStart() {
         Log.d(LOG_TAG, "processStart")
 
-        if (isDisconnected) {
-            connect()
-        }
-
-        isDisconnected = false
-        disconnectTimerDisposable?.dispose()
-    }
-
-    private fun connect() {
-        Log.d(LOG_TAG, "Connect")
-
-        compositeDisposable += interactor.connect()
-            .subscribeBy(
-                onComplete = {
-                    Log.d(LOG_TAG, "Connection completed")
-                },
-                onError = { error ->
-                    Log.e(LOG_TAG, "Connect error: $error")
-                }
-            )
+        isStartedSubject.onNext(true)
     }
 
     fun processStop() {
         Log.d(LOG_TAG, "processStop")
 
-        disconnectTimerDisposable = Observable.timer(2, TimeUnit.SECONDS)
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribeBy(
-                onComplete = {
-                    Log.d(LOG_TAG, "Disconnect timer is finished")
-
-                    isDisconnected = true
-                    interactor.disconnect()
-                },
-                onError = { error ->
-                    Log.e(LOG_TAG, "Disconnect timer error: $error")
-                }
-            )
+        isStartedSubject.onNext(false)
     }
 
     fun processMove(fromPosition: Int, newPosition: Int) {
@@ -202,6 +124,80 @@ internal class QuotesViewModel @Inject constructor(
         Log.d(LOG_TAG, "back")
 
         router.back()
+    }
+
+    private fun observeSocketConnection() {
+        compositeDisposable += isStartedSubject
+            .switchMapSingle { isStarted ->
+                if (isStarted) {
+                    Single.just(true)
+                } else {
+                    Single.just(false)
+                        .delay(DISCONNECT_AFTER_STOP_DURATION_SEC, TimeUnit.SECONDS)
+                }
+            }
+            .distinctUntilChanged()
+            .switchMapCompletable { isStarted ->
+                Log.d(LOG_TAG, "Process isStarted: $isStarted")
+
+                if (isStarted) {
+                    interactor.connect()
+                        .doOnSubscribe { Log.d(LOG_TAG, "Try to connect") }
+                        .retryWhen { handler ->
+                            handler
+                                .flatMap {
+                                    Flowable.timer(
+                                        RECONNECT_DURATION_SEC,
+                                        TimeUnit.SECONDS
+                                    )
+                                }
+                        }
+                        .repeatWhen { handler ->
+                            handler
+                                .flatMapMaybe { interactor.observeDisconnect().firstElement() }
+                        }
+                } else {
+                    Completable.fromAction { interactor.disconnect() }
+                }
+            }
+            .subscribeBy(
+                onComplete = {
+                    Log.d(LOG_TAG, "Observe start completed")
+                },
+                onError = { error ->
+                    Log.e(LOG_TAG, "Observe start error: $error")
+                }
+            )
+    }
+
+    private fun observeQuotes() {
+        observeQuotesUseCase()
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribeBy(
+                onNext = { quotes ->
+                    Log.v(LOG_TAG, "New quotes: $quotes")
+
+                    updateQuotes(quotes)
+                },
+                onError = { error ->
+                    Log.e(LOG_TAG, "Observe quotes error: $error")
+                }
+            )
+    }
+
+    private fun observeInstruments() {
+        compositeDisposable += observeInstrumentsUseCase()
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribeBy(
+                onNext = { instruments ->
+                    Log.d(LOG_TAG, "New subscribed instruments success: $instruments")
+
+                    updateInstruments(instruments)
+                },
+                onError = { error ->
+                    Log.e(LOG_TAG, "Observe instruments error: $error")
+                }
+            )
     }
 
     private fun observeSocketStatus() {
@@ -290,5 +286,8 @@ internal class QuotesViewModel @Inject constructor(
     private companion object {
 
         const val LOG_TAG = "QuotesViewModel"
+
+        const val RECONNECT_DURATION_SEC = 1L
+        const val DISCONNECT_AFTER_STOP_DURATION_SEC = 2L
     }
 }

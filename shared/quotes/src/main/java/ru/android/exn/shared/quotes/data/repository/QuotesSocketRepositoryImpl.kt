@@ -24,7 +24,8 @@ class QuotesSocketRepositoryImpl @Inject constructor(
 
     override fun connect(): Completable = dataSource
         .connect()
-        .doOnComplete { Log.d(LOG_TAG, "Connection connect") }
+        .doOnSubscribe { Log.d(LOG_TAG, "Request connect") }
+        .doOnComplete { Log.d(LOG_TAG, "Connected") }
         .andThen(instrumentDao.getAll())
         .map { instrumentDtoList ->
             instrumentDtoList.filter { instrumentDto ->
